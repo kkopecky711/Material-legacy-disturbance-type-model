@@ -2,7 +2,10 @@
 title: "Effects of multiple disturbance types"
 author: "Kai Kopecky"
 date: "2/12/2021"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
 ---
 ### The model
 #### State Variables for proportional cover of benthic space holders
@@ -59,21 +62,29 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r Parameter values (per year), echo = FALSE}
 # Set parameter values
-g_C <- 0.15
-d_C <- 0.002
+g_C <- 0.1
+d_C <- 0.001
 gamma_C <- 0.001
 g_M <- 0.5
-g_M_C_L <- 0.025
+g_M_C_L <- 0.05
 d_M <- 0.05
-h_M_S <- 0.25
-h_M_C <- 0.2 # default value
-#h_M_C.two_thirds <- 0.2
-#h_M_C.half <- 0.15
-#h_M_C.third <- 0.1
-gamma_M <- 0.0001
+h_M_S <- 0.3
+h_M_C <- 0.2
+gamma_M <- 0.001
 e <- 0.01
-#t_disturb <- 200 # time at which single disturbance occurs
 
+#g_C <- 0.1
+#d_C <- 0.005
+#gamma_C <- 0.001
+#g_M <- 0.4
+#g_M_C_L <- 0.1
+#d_M <- 0.04
+#h_M_S <- 0.2
+#h_M_C <- 0.15 # default value
+#gamma_M <- 0.0001
+#e <- 0.01
+
+t_disturb <- 200
 t_disturb_1 <- 120 # disturbance times
 t_disturb_2 <- 180
 t_disturb_3 <- 240
@@ -100,12 +111,11 @@ tset.disturb <- seq(from = 0, to = 1200) # Time vector for inner loop
 
 ```
 
-### Multiple disturbances
+### Time series
 
-#### Time series
+#### Fifteen year frequency
 
-50% removal of all space holders every ten years
-```{r 50% structure-removing disturbance ten year frequency, echo = FALSE}
+```{r 50% structure-removing disturbance fifteen year frequency, echo = FALSE}
 
 # Create time vector, holding vectors for each state variable, and set initial conditions
 tset_phys_dist <- seq(from = 0, to = 1200)
@@ -118,7 +128,7 @@ M_C.simu_phys <- NaN*tset_phys_dist; M_C.simu_phys[1] <- 0.05
 
 for(i in 2:length(tset_phys_dist)){ # For every element after the first in the time vector...
   
-  if(tset_phys_dist[i] !=t_disturb_1 & tset_phys_dist[i] !=t_disturb_2 & tset_phys_dist[i] !=t_disturb_3 & tset_phys_dist[i] !=t_disturb_4 & tset_phys_dist[i] !=t_disturb_5 & tset_phys_dist[i] !=t_disturb_6 & tset_phys_dist[i] !=t_disturb_7 & tset_phys_dist[i] !=t_disturb_8 & tset_phys_dist[i] !=t_disturb_9){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+  if(tset_phys_dist[i] !=t_disturb_1 & tset_phys_dist[i] !=t_disturb_4 & tset_phys_dist[i] !=t_disturb_7 & tset_phys_dist[i] !=t_disturb_10 & tset_phys_dist[i] !=t_disturb_13 & tset_phys_dist[i] !=t_disturb_16){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
   
   dt <- tset_phys_dist[i] - tset_phys_dist[i-1] # calculate change in time  
  
@@ -165,7 +175,7 @@ for(i in 2:length(tset_phys_dist)){ # For every element after the first in the t
 }
 
 # Plot of time series
-plot(tset_phys_dist, C_L.simu_phys, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist)), ylim = c(0, 1))
+plot(tset_phys_dist, C_L.simu_phys, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist)), ylim = c(0, 1), main = "50% structure-removing every fifteen years ")
 lines(tset_phys_dist, C_D.simu_phys, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_S.simu_phys, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
@@ -176,7 +186,7 @@ lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
 #abline(v=460, lty = 'dashed')
 ```
 
-Structure-retaining disturbances: 50% reduction in live coral cover that is transferred to dead coral every ten years; macroalgae unaffected 
+50% structure-retaining disturbances every ten years
 ```{r 50% structure-retaining ten year frequency , echo = FALSE}
 
 # Create time vector, holding vectors for each state variable, and set initial conditions
@@ -189,7 +199,7 @@ M_C.bio <- NaN*tset_bio_dist; M_C.bio[1] <- 0.05
 # For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
 for(i in 2:length(tset_bio_dist)){ # For every element after the first in the time vector...
   
- if(tset_bio_dist[i] !=t_disturb_1 & tset_bio_dist[i] !=t_disturb_2 & tset_bio_dist[i] !=t_disturb_3 & tset_bio_dist[i] !=t_disturb_4 & tset_bio_dist[i] !=t_disturb_5 & tset_bio_dist[i] !=t_disturb_6 & tset_bio_dist[i] !=t_disturb_7 & tset_bio_dist[i] !=t_disturb_8 & tset_bio_dist[i] !=t_disturb_9){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+ if(tset_phys_dist[i] !=t_disturb_1 & tset_phys_dist[i] !=t_disturb_4 & tset_phys_dist[i] !=t_disturb_7 & tset_phys_dist[i] !=t_disturb_10 & tset_phys_dist[i] !=t_disturb_13 & tset_phys_dist[i] !=t_disturb_16){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
 
 # calculate change in time  
   dt <- tset_bio_dist[i] - tset_bio_dist[i-1] 
@@ -239,7 +249,156 @@ for(i in 2:length(tset_bio_dist)){ # For every element after the first in the ti
 }
 
 # Plot of time series for all space holders
-plot(tset_bio_dist, C_L.bio, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist)), ylim = c(0, 1))
+plot(tset_bio_dist, C_L.bio, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist)), ylim = c(0, 1), main = "50% structure-retaining every fifteen years ")
+lines(tset_bio_dist, C_D.bio, col = "black", lwd = 1, lty = 'solid')
+lines(tset_bio_dist, M_S.bio, col = "green", lwd = 1, lty = 'solid')
+lines(tset_bio_dist, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
+legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae  (dead coral)'), lwd=1, lty='solid', col=c('blue','black','green','grey'))
+#abline(v=100, lty = 'dashed')
+#abline(v=220, lty = 'dashed')
+#abline(v=340, lty = 'dashed')
+#abline(v=460, lty = 'dashed')
+
+```
+
+#### Ten year frequency
+
+50% structure-removing disturbances every ten years
+```{r 50% structure-removing disturbance ten year frequency, echo = FALSE}
+
+# Create time vector, holding vectors for each state variable, and set initial conditions
+tset_phys_dist <- seq(from = 0, to = 1200)
+C_L.simu_phys <- NaN*tset_phys_dist; C_L.simu_phys[1] <- 0.6
+C_D.simu_phys <- NaN*tset_phys_dist; C_D.simu_phys[1] <- 0
+M_S.simu_phys <- NaN*tset_phys_dist; M_S.simu_phys[1] <- 0.05
+M_C.simu_phys <- NaN*tset_phys_dist; M_C.simu_phys[1] <- 0.05
+
+# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
+
+for(i in 2:length(tset_phys_dist)){ # For every element after the first in the time vector...
+  
+  if(tset_phys_dist[i] !=t_disturb_1 & tset_phys_dist[i] !=t_disturb_3 & tset_phys_dist[i] !=t_disturb_5 & tset_phys_dist[i] !=t_disturb_7 & tset_phys_dist[i] !=t_disturb_9 & tset_phys_dist[i] !=t_disturb_11 & tset_phys_dist[i] !=t_disturb_13 & tset_phys_dist[i] !=t_disturb_15 & tset_phys_dist[i] !=t_disturb_17){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+  
+  dt <- tset_phys_dist[i] - tset_phys_dist[i-1] # calculate change in time  
+ 
+  # Proportional cover at previous time step  
+  C_L <- C_L.simu_phys[i-1]
+  C_D <- C_D.simu_phys[i-1]
+  M_S <- M_S.simu_phys[i-1]
+  M_C <- M_C.simu_phys[i-1]
+  
+  # Change in proportional cover, converted to units of months (/5)
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+ 
+  # Proportional cover at new time step   
+  C_L.simu_phys[i] <- C_L.simu_phys[i-1] + dC_L
+  C_D.simu_phys[i] <- C_D.simu_phys[i-1] + dC_D
+  M_S.simu_phys[i] <- M_S.simu_phys[i-1] + dM_S
+  M_C.simu_phys[i] <- M_C.simu_phys[i-1] + dM_C
+  }
+  
+    else { # ... but if the time step does equal the time of disturbance...
+  
+  dt <- tset_phys_dist[i] - tset_phys_dist[i-1]
+
+  # reduce all space holders to 50% of their pre-disturbance levels
+  C_L <- C_L.simu_phys[i-1]*0.5
+  C_D <- C_D.simu_phys[i-1]*0.5
+  M_S <- M_S.simu_phys[i-1]*0.5
+  M_C <- M_C.simu_phys[i-1]*0.5
+  
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  
+  C_L.simu_phys[i] <- C_L+ dC_L
+  C_D.simu_phys[i] <- C_D+ dC_D
+  M_S.simu_phys[i] <- M_S+ dM_S
+  M_C.simu_phys[i] <- M_C+ dM_C
+  }
+  
+}
+
+# Plot of time series
+plot(tset_phys_dist, C_L.simu_phys, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist)), ylim = c(0, 1), main = "50% structure-removing every ten years ")
+lines(tset_phys_dist, C_D.simu_phys, col = "black", lwd = 1, lty = 'solid')
+lines(tset_phys_dist, M_S.simu_phys, col = "green", lwd = 1, lty = 'solid')
+lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
+#legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae (dead coral)'),lwd=1,lty='solid',col=c('blue','black','green','grey'))
+#abline(v=100, lty = 'dashed')
+#abline(v=220, lty = 'dashed')
+#abline(v=340, lty = 'dashed')
+#abline(v=460, lty = 'dashed')
+```
+
+50% structure-retaining disturbances every ten years
+```{r 50% structure-retaining ten year frequency , echo = FALSE}
+
+# Create time vector, holding vectors for each state variable, and set initial conditions
+tset_bio_dist <- seq(from = 0, to = 1200)
+C_L.bio <- NaN*tset_bio_dist; C_L.bio[1] <- 0.6
+C_D.bio <- NaN*tset_bio_dist; C_D.bio[1] <- 0
+M_S.bio <- NaN*tset_bio_dist; M_S.bio[1] <- 0.05
+M_C.bio <- NaN*tset_bio_dist; M_C.bio[1] <- 0.05
+
+# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
+for(i in 2:length(tset_bio_dist)){ # For every element after the first in the time vector...
+  
+ if(tset_phys_dist[i] !=t_disturb_1 & tset_phys_dist[i] !=t_disturb_3 & tset_phys_dist[i] !=t_disturb_5 & tset_phys_dist[i] !=t_disturb_7 & tset_phys_dist[i] !=t_disturb_9 & tset_phys_dist[i] !=t_disturb_11 & tset_phys_dist[i] !=t_disturb_13 & tset_phys_dist[i] !=t_disturb_15 & tset_phys_dist[i] !=t_disturb_17){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+
+# calculate change in time  
+  dt <- tset_bio_dist[i] - tset_bio_dist[i-1] 
+
+  # Proportional cover at previous time step  
+  C_L <- C_L.bio[i-1] 
+  C_D <- C_D.bio[i-1]
+  M_S <- M_S.bio[i-1]
+  M_C <- M_C.bio[i-1]
+ 
+# Change in proportional cover, converted to units of months (/5)
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+
+# Proportional cover at new time step  
+  C_L.bio[i] <- C_L.bio[i-1] + dC_L
+  C_D.bio[i] <- C_D.bio[i-1] + dC_D
+  M_S.bio[i] <- M_S.bio[i-1] + dM_S
+  M_C.bio[i] <- M_C.bio[i-1] + dM_C
+  
+  }
+
+  # ... but if the time step does equal the time of disturbance...
+    else {
+  
+  dt <- tset_bio_dist[i] - tset_bio_dist[i-1]
+
+  C_L <- C_L.bio[i-1]*0.5 # reduce live coral to 50% of its pre-disturbance level, and transfer this directly to the dead coral class
+  C_D <- C_D.bio[i-1] + (C_L.bio[i-1]-C_L)
+  M_S <- M_S.bio[i-1]
+  M_C <- M_C.bio[i-1]
+  
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  
+  C_L.bio[i] <- C_L + dC_L
+  C_D.bio[i] <- C_D + dC_D
+  M_S.bio[i] <- M_S + dM_S
+  M_C.bio[i] <- M_C + dM_C
+  
+  }
+  
+}
+
+# Plot of time series for all space holders
+plot(tset_bio_dist, C_L.bio, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist)), ylim = c(0, 1), main = "50% structure-retaining every ten years ")
 lines(tset_bio_dist, C_D.bio, col = "black", lwd = 1, lty = 'solid')
 lines(tset_bio_dist, M_S.bio, col = "green", lwd = 1, lty = 'solid')
 lines(tset_bio_dist, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
@@ -251,7 +410,324 @@ lines(tset_bio_dist, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
 
 ```
 
-Equilibrium cover following structure removing disturbances, ten year frequency
+#### Five year frequency
+
+50% structure-removing disturbances every five years
+```{r 50% structure-removing disturbance five year frequency, echo = FALSE}
+
+# Create time vector, holding vectors for each state variable, and set initial conditions
+tset_phys_dist <- seq(from = 0, to = 1200)
+C_L.simu_phys <- NaN*tset_phys_dist; C_L.simu_phys[1] <- 0.6
+C_D.simu_phys <- NaN*tset_phys_dist; C_D.simu_phys[1] <- 0
+M_S.simu_phys <- NaN*tset_phys_dist; M_S.simu_phys[1] <- 0.05
+M_C.simu_phys <- NaN*tset_phys_dist; M_C.simu_phys[1] <- 0.05
+
+# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
+
+for(i in 2:length(tset_phys_dist)){ # For every element after the first in the time vector...
+  
+  if(tset.disturb[i] !=t_disturb_1 & tset.disturb[i] !=t_disturb_3 & tset.disturb[i] !=t_disturb_5 & tset.disturb[i] !=t_disturb_7 & tset.disturb[i] !=t_disturb_9 & tset.disturb[i] !=t_disturb_11 & tset.disturb[i] !=t_disturb_13 & tset.disturb[i] !=t_disturb_15 & tset.disturb[i] !=t_disturb_17 & tset.disturb[i] !=t_disturb_2 & tset.disturb[i] !=t_disturb_4 & tset.disturb[i] !=t_disturb_6 & tset.disturb[i] !=t_disturb_8 & tset.disturb[i] !=t_disturb_10 & tset.disturb[i] !=t_disturb_12 & tset.disturb[i] !=t_disturb_14 & tset.disturb[i] !=t_disturb_16 & tset.disturb[i] !=t_disturb_18){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+  
+  dt <- tset_phys_dist[i] - tset_phys_dist[i-1] # calculate change in time  
+ 
+  # Proportional cover at previous time step  
+  C_L <- C_L.simu_phys[i-1]
+  C_D <- C_D.simu_phys[i-1]
+  M_S <- M_S.simu_phys[i-1]
+  M_C <- M_C.simu_phys[i-1]
+  
+  # Change in proportional cover, converted to units of months (/5)
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+ 
+  # Proportional cover at new time step   
+  C_L.simu_phys[i] <- C_L.simu_phys[i-1] + dC_L
+  C_D.simu_phys[i] <- C_D.simu_phys[i-1] + dC_D
+  M_S.simu_phys[i] <- M_S.simu_phys[i-1] + dM_S
+  M_C.simu_phys[i] <- M_C.simu_phys[i-1] + dM_C
+  }
+  
+    else { # ... but if the time step does equal the time of disturbance...
+  
+  dt <- tset_phys_dist[i] - tset_phys_dist[i-1]
+
+  # reduce all space holders to 50% of their pre-disturbance levels
+  C_L <- C_L.simu_phys[i-1]*0.5
+  C_D <- C_D.simu_phys[i-1]*0.5
+  M_S <- M_S.simu_phys[i-1]*0.5
+  M_C <- M_C.simu_phys[i-1]*0.5
+  
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  
+  C_L.simu_phys[i] <- C_L+ dC_L
+  C_D.simu_phys[i] <- C_D+ dC_D
+  M_S.simu_phys[i] <- M_S+ dM_S
+  M_C.simu_phys[i] <- M_C+ dM_C
+  }
+  
+}
+
+# Plot of time series
+plot(tset_phys_dist, C_L.simu_phys, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist)), ylim = c(0, 1),main = "50% structure-removing every five years ")
+lines(tset_phys_dist, C_D.simu_phys, col = "black", lwd = 1, lty = 'solid')
+lines(tset_phys_dist, M_S.simu_phys, col = "green", lwd = 1, lty = 'solid')
+lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
+#legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae (dead coral)'),lwd=1,lty='solid',col=c('blue','black','green','grey'))
+#abline(v=100, lty = 'dashed')
+#abline(v=340, lty = 'dashed')
+#abline(v=580, lty = 'dashed')
+#abline(v=820, lty = 'dashed')
+```
+
+50% structure-retaining disturbances every five years
+```{r 50% structure-retaining disturbance five year frequency, echo = FALSE}
+
+# Create time vector, holding vectors for each state variable, and set initial conditions
+tset_bio_dist <- seq(from = 0, to = 1200)
+C_L.bio <- NaN*tset_bio_dist; C_L.bio[1] <- 0.6
+C_D.bio <- NaN*tset_bio_dist; C_D.bio[1] <- 0
+M_S.bio <- NaN*tset_bio_dist; M_S.bio[1] <- 0.05
+M_C.bio <- NaN*tset_bio_dist; M_C.bio[1] <- 0.05
+
+# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
+for(i in 2:length(tset_bio_dist)){ # For every element after the first in the time vector...
+  
+ if(tset.disturb[i] !=t_disturb_1 & tset.disturb[i] !=t_disturb_3 & tset.disturb[i] !=t_disturb_5 & tset.disturb[i] !=t_disturb_7 & tset.disturb[i] !=t_disturb_9 & tset.disturb[i] !=t_disturb_11 & tset.disturb[i] !=t_disturb_13 & tset.disturb[i] !=t_disturb_15 & tset.disturb[i] !=t_disturb_17 & tset.disturb[i] !=t_disturb_2 & tset.disturb[i] !=t_disturb_4 & tset.disturb[i] !=t_disturb_6 & tset.disturb[i] !=t_disturb_8 & tset.disturb[i] !=t_disturb_10 & tset.disturb[i] !=t_disturb_12 & tset.disturb[i] !=t_disturb_14 & tset.disturb[i] !=t_disturb_16 & tset.disturb[i] !=t_disturb_18){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+
+# calculate change in time  
+  dt <- tset_bio_dist[i] - tset_bio_dist[i-1] 
+
+  # Proportional cover at previous time step  
+  C_L <- C_L.bio[i-1] 
+  C_D <- C_D.bio[i-1]
+  M_S <- M_S.bio[i-1]
+  M_C <- M_C.bio[i-1]
+ 
+# Change in proportional cover, converted to units of months (/5)
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+
+# Proportional cover at new time step  
+  C_L.bio[i] <- C_L.bio[i-1] + dC_L
+  C_D.bio[i] <- C_D.bio[i-1] + dC_D
+  M_S.bio[i] <- M_S.bio[i-1] + dM_S
+  M_C.bio[i] <- M_C.bio[i-1] + dM_C
+  
+  }
+
+  # ... but if the time step does equal the time of disturbance...
+    else {
+  
+  dt <- tset_bio_dist[i] - tset_bio_dist[i-1]
+
+  C_L <- C_L.bio[i-1]*0.5 # reduce live coral to 50% of its pre-disturbance level, and transfer this directly to the dead coral class
+  C_D <- C_D.bio[i-1] + (C_L.bio[i-1]-C_L)
+  M_S <- M_S.bio[i-1]
+  M_C <- M_C.bio[i-1]
+  
+  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  
+  C_L.bio[i] <- C_L + dC_L
+  C_D.bio[i] <- C_D + dC_D
+  M_S.bio[i] <- M_S + dM_S
+  M_C.bio[i] <- M_C + dM_C
+  
+  }
+  
+}
+
+# Plot of time series for all space holders
+plot(tset_bio_dist, C_L.bio, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist)), ylim = c(0, 1), main = "50% structure-retaining every five years ")
+lines(tset_bio_dist, C_D.bio, col = "black", lwd = 1, lty = 'solid')
+lines(tset_bio_dist, M_S.bio, col = "green", lwd = 1, lty = 'solid')
+lines(tset_bio_dist, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
+#legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae  (dead coral)'), lwd=1, lty='solid', col=c('blue','black','green','grey'))
+#abline(v=100, lty = 'dashed')
+#abline(v=340, lty = 'dashed')
+#abline(v=580, lty = 'dashed')
+#abline(v=820, lty = 'dashed')
+
+```
+
+### Equilibrium cover
+
+#### Equilibrium cover of coral and macroalgae after structure-removing or structure-retaining disturbances every ten or every fifteen years
+
+```{r Equilibrium cover structure-removing fifteen years, echo=FALSE}
+
+
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.phys.eq_cover.fifteen_year <- NaN*disturb_set
+C_D.phys.eq_cover.fifteen_year <- NaN*disturb_set
+M_S.phys.eq_cover.fifteen_year <- NaN*disturb_set
+M_C.phys.eq_cover.fifteen_year <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.phys.fifteen_year <- NaN*tset.disturb 
+	C_L.phys.fifteen_year[1] <- 0.6
+	C_D.phys.fifteen_year <- NaN*tset.disturb 
+	C_D.phys.fifteen_year[1] <- 0
+	M_S.phys.fifteen_year <- NaN*tset.disturb 
+	M_S.phys.fifteen_year[1] <- 0.05
+	M_C.phys.fifteen_year <- NaN*tset.disturb 
+	M_C.phys.fifteen_year[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+  for(i in 2:length(tset.disturb)){
+  	
+   if(tset.disturb[i] !=t_disturb_1 & tset.disturb[i] !=t_disturb_4 & tset.disturb[i] !=t_disturb_7 & tset.disturb[i] !=t_disturb_10 & tset.disturb[i] !=t_disturb_13 & tset.disturb[i] !=t_disturb_16){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.fifteen_year[i-1]
+  	C_D <- C_D.phys.fifteen_year[i-1]
+    M_S <- M_S.phys.fifteen_year[i-1]
+  	M_C <- M_C.phys.fifteen_year[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.phys.fifteen_year[i] <- C_L + dC_L
+  	C_D.phys.fifteen_year[i] <- C_D + dC_D
+  	M_S.phys.fifteen_year[i] <- M_S + dM_S
+  	M_C.phys.fifteen_year[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset.disturb[i] - tset.disturb[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.fifteen_year[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.phys.fifteen_year[i-1]*(1-disturbance_severity)
+    M_S <- M_S.phys.fifteen_year[i-1]*(1-disturbance_severity)
+  	M_C <- M_C.phys.fifteen_year[i-1]*(1-disturbance_severity)
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.phys.fifteen_year[i] <- C_L + dC_L
+  	C_D.phys.fifteen_year[i] <- C_D + dC_D
+  	M_S.phys.fifteen_year[i] <- M_S + dM_S
+  	M_C.phys.fifteen_year[i] <- M_C + dM_C
+    }
+  }
+# final output is equilibrium cover for a given severity of disturbance
+C_L.phys.eq_cover.fifteen_year[j] <- C_L.phys.fifteen_year[max(tset.disturb)]
+C_D.phys.eq_cover.fifteen_year[j] <- C_D.phys.fifteen_year[max(tset.disturb)]
+M_S.phys.eq_cover.fifteen_year[j] <- M_S.phys.fifteen_year[max(tset.disturb)]
+M_C.phys.eq_cover.fifteen_year[j] <- M_C.phys.fifteen_year[max(tset.disturb)]
+}
+
+```
+
+```{r Equilibrium cover structure-retaining fifteen years, echo=FALSE}
+
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.bio.eq_cover.fifteen_year <- NaN*disturb_set
+C_D.bio.eq_cover.fifteen_year <- NaN*disturb_set
+M_S.bio.eq_cover.fifteen_year <- NaN*disturb_set
+M_C.bio.eq_cover.fifteen_year <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.bio.fifteen_year <- NaN*tset.disturb 
+	C_L.bio.fifteen_year[1] <- 0.6
+	C_D.bio.fifteen_year <- NaN*tset.disturb 
+	C_D.bio.fifteen_year[1] <- 0
+	M_S.bio.fifteen_year <- NaN*tset.disturb 
+	M_S.bio.fifteen_year[1] <- 0.05
+	M_C.bio.fifteen_year <- NaN*tset.disturb 
+	M_C.bio.fifteen_year[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+	for(i in 2:length(tset.disturb)){
+	  
+  if(tset.disturb[i] !=t_disturb_1 & tset.disturb[i] !=t_disturb_4 & tset.disturb[i] !=t_disturb_7 & tset.disturb[i] !=t_disturb_10 & tset.disturb[i] !=t_disturb_13 & tset.disturb[i] !=t_disturb_16){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.fifteen_year[i-1]
+  	C_D <- C_D.bio.fifteen_year[i-1]
+    M_S <- M_S.bio.fifteen_year[i-1]
+  	M_C <- M_C.bio.fifteen_year[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.bio.fifteen_year[i] <- C_L + dC_L
+  	C_D.bio.fifteen_year[i] <- C_D + dC_D
+  	M_S.bio.fifteen_year[i] <- M_S + dM_S
+  	M_C.bio.fifteen_year[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset.disturb[i] - tset.disturb[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.fifteen_year[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.bio.fifteen_year[i-1] + (C_L.bio.fifteen_year[i-1]-C_L)
+    M_S <- M_S.bio.fifteen_year[i-1]
+  	M_C <- M_C.bio.fifteen_year[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.bio.fifteen_year[i] <- C_L + dC_L
+  	C_D.bio.fifteen_year[i] <- C_D + dC_D
+  	M_S.bio.fifteen_year[i] <- M_S + dM_S
+  	M_C.bio.fifteen_year[i] <- M_C + dM_C
+     }
+  }
+# final output is maximum cover for a given severity of disturbance
+C_L.bio.eq_cover.fifteen_year[j] <- C_L.bio.fifteen_year[max(tset.disturb)]
+C_D.bio.eq_cover.fifteen_year[j] <- C_D.bio.fifteen_year[max(tset.disturb)]
+M_S.bio.eq_cover.fifteen_year[j] <- M_S.bio.fifteen_year[max(tset.disturb)]
+M_C.bio.eq_cover.fifteen_year[j] <- M_C.bio.fifteen_year[max(tset.disturb)]
+}
+
+```
+
 ```{r Equilibrium cover structure-removing ten years, echo=FALSE}
 
 
@@ -281,7 +757,7 @@ for(j in 1:length(disturb_set)){
 # for each value of 'disturb_set'
   for(i in 2:length(tset.disturb)){
   	
-   if(tset.disturb[i] !=t_disturb_1 & tset.disturb[i] !=t_disturb_3 & tset.disturb[i] !=t_disturb_5 & tset.disturb[i] !=t_disturb_7 & tset.disturb[i] !=t_disturb_9 & tset.disturb[i] !=t_disturb_11 & tset.disturb[i] !=t_disturb_13 & tset.disturb[i] !=t_disturb_15 & tset.disturb[i] !=t_disturb_17){ # change in time
+   if(tset.disturb[i] !=t_disturb_1 & tset.disturb[i] !=t_disturb_5 & tset.disturb[i] !=t_disturb_9 & tset.disturb[i] !=t_disturb_13 & tset.disturb[i] !=t_disturb_17){ # change in time
     
     # use variable assignment to create objects to plug into calculations 
   	C_L <- C_L.phys.ten_year[i-1]
@@ -443,7 +919,7 @@ for(j in 1:length(disturb_set)){
 	M_C.phys.five_year <- NaN*tset.disturb 
 	M_C.phys.five_year[1] <- 0.05
 
-# Inner loop	
+	# Inner loop	
 # for each value of 'disturb_set'
   for(i in 2:length(tset.disturb)){
   	
@@ -589,454 +1065,22 @@ Equilibrium cover plots
 # Live coral
 plot(disturb_set, C_L.phys.eq_cover.ten_year, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
 lines(disturb_set, C_L.bio.eq_cover.ten_year, col = "red", lwd = 2, lty = 'solid', type = 'l')
-lines(disturb_set, C_L.phys.eq_cover.five_year, col = "blue", lwd = 2, lty = 'dotted', type = 'l')
-lines(disturb_set, C_L.bio.eq_cover.five_year, col = "red", lwd = 2, lty = 'dotted', type = 'l')
-#legend(x=0.6,y=1.1,legend=c('Structure-removing disturbance','Structure-retaining disturbance','10-year frequency','5-year frequency'),lwd=1,lty=c('solid','solid','dotted','dotted'),col=c('blue','red', 'black','black'))
+lines(disturb_set, C_L.phys.eq_cover.fifteen_year, col = "blue", lwd = 1, lty = 'dashed', type = 'l')
+lines(disturb_set, C_L.bio.eq_cover.fifteen_year, col = "red", lwd = 1, lty = 'dashed', type = 'l')
+lines(disturb_set, C_L.phys.eq_cover.five_year, col = "blue", lwd = 1, lty = 'dotted', type = 'l')
+lines(disturb_set, C_L.bio.eq_cover.five_year, col = "red", lwd = 1, lty = 'dotted', type = 'l')
+#legend(x=0.6,y=1.1,legend=c('Structure-removing disturbance','Structure-retaining disturbance','15-year frequency', '10-year frequency','5-year frequency'),lwd=1,lty=c('solid','solid','dashed','solid', 'dotted'),col=c('blue','red', 'black','black', 'black'))
 
 # Total macroalgae
 plot(disturb_set, c(M_C.phys.eq_cover.ten_year + M_S.phys.eq_cover.ten_year), col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Total macroalgae")
 lines(disturb_set, c(M_C.bio.eq_cover.ten_year + M_S.bio.eq_cover.ten_year), col = "red", lwd = 2, lty = 'solid', type = 'l')
-lines(disturb_set, c(M_C.phys.eq_cover.five_year + M_S.phys.eq_cover.five_year), col = "blue", lwd = 2, lty = 'dotted', type = 'l')
-lines(disturb_set, c(M_C.bio.eq_cover.five_year + M_S.bio.eq_cover.five_year), col = "red", lwd = 2, lty = 'dotted', type = 'l')
-#legend(x=0.6,y=1.1,legend=c('Structure-removing','Structure-retaining'), lwd=1, lty='solid', col=c('blue','red'))
-
+lines(disturb_set, c(M_C.phys.eq_cover.fifteen_year + M_S.phys.eq_cover.fifteen_year), col = "blue", lwd = 1, lty = 'dashed', type = 'l')
+lines(disturb_set, c(M_C.bio.eq_cover.fifteen_year + M_S.bio.eq_cover.fifteen_year), col = "red", lwd = 1, lty = 'dashed', type = 'l')
+lines(disturb_set, c(M_C.phys.eq_cover.five_year + M_S.phys.eq_cover.five_year), col = "blue", lwd = 1, lty = 'dotted', type = 'l')
+lines(disturb_set, c(M_C.bio.eq_cover.five_year + M_S.bio.eq_cover.five_year), col = "red", lwd = 1, lty = 'dotted', type = 'l')
+legend(x=0.3,y=1.1,legend=c('Structure-removing disturbance','Structure-retaining disturbance','15-year frequency', '10-year frequency','5-year frequency'),lwd=1,lty=c('solid','solid','dashed','solid', 'dotted'),col=c('blue','red', 'black','black', 'black'))
 ```
 
-Structure-removing disturbances: 50% removal of all space holders every five years
-```{r 50% structure-removing disturbance five year frequency, echo = FALSE}
-
-# Create time vector, holding vectors for each state variable, and set initial conditions
-tset_phys_dist <- seq(from = 0, to = 1200)
-C_L.simu_phys <- NaN*tset_phys_dist; C_L.simu_phys[1] <- 0.6
-C_D.simu_phys <- NaN*tset_phys_dist; C_D.simu_phys[1] <- 0
-M_S.simu_phys <- NaN*tset_phys_dist; M_S.simu_phys[1] <- 0.05
-M_C.simu_phys <- NaN*tset_phys_dist; M_C.simu_phys[1] <- 0.05
-
-# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
-
-for(i in 2:length(tset_phys_dist)){ # For every element after the first in the time vector...
-  
-  if(tset_phys_dist[i] !=t_disturb_10 & tset_phys_dist[i] !=t_disturb_11 & tset_phys_dist[i] !=t_disturb_12 & tset_phys_dist[i] !=t_disturb_13 & tset_phys_dist[i] !=t_disturb_14 & tset_phys_dist[i] !=t_disturb_15 & tset_phys_dist[i] !=t_disturb_16 & tset_phys_dist[i] !=t_disturb_17 & tset_phys_dist[i] !=t_disturb_18 & tset_phys_dist[i] !=t_disturb_19 & tset_phys_dist[i] !=t_disturb_20 & tset_phys_dist[i] !=t_disturb_21 & tset_phys_dist[i] !=t_disturb_22 & tset_phys_dist[i] !=t_disturb_23 & tset_phys_dist[i] !=t_disturb_24 & tset_phys_dist[i] !=t_disturb_25 & tset_phys_dist[i] !=t_disturb_26 & tset_phys_dist[i] !=t_disturb_27){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
-  
-  dt <- tset_phys_dist[i] - tset_phys_dist[i-1] # calculate change in time  
- 
-  # Proportional cover at previous time step  
-  C_L <- C_L.simu_phys[i-1]
-  C_D <- C_D.simu_phys[i-1]
-  M_S <- M_S.simu_phys[i-1]
-  M_C <- M_C.simu_phys[i-1]
-  
-  # Change in proportional cover, converted to units of months (/5)
-  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
- 
-  # Proportional cover at new time step   
-  C_L.simu_phys[i] <- C_L.simu_phys[i-1] + dC_L
-  C_D.simu_phys[i] <- C_D.simu_phys[i-1] + dC_D
-  M_S.simu_phys[i] <- M_S.simu_phys[i-1] + dM_S
-  M_C.simu_phys[i] <- M_C.simu_phys[i-1] + dM_C
-  }
-  
-    else { # ... but if the time step does equal the time of disturbance...
-  
-  dt <- tset_phys_dist[i] - tset_phys_dist[i-1]
-
-  # reduce all space holders to 50% of their pre-disturbance levels
-  C_L <- C_L.simu_phys[i-1]*0.5
-  C_D <- C_D.simu_phys[i-1]*0.5
-  M_S <- M_S.simu_phys[i-1]*0.5
-  M_C <- M_C.simu_phys[i-1]*0.5
-  
-  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  
-  C_L.simu_phys[i] <- C_L+ dC_L
-  C_D.simu_phys[i] <- C_D+ dC_D
-  M_S.simu_phys[i] <- M_S+ dM_S
-  M_C.simu_phys[i] <- M_C+ dM_C
-  }
-  
-}
-
-# Plot of time series
-plot(tset_phys_dist, C_L.simu_phys, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist)), ylim = c(0, 1))
-lines(tset_phys_dist, C_D.simu_phys, col = "black", lwd = 1, lty = 'solid')
-lines(tset_phys_dist, M_S.simu_phys, col = "green", lwd = 1, lty = 'solid')
-lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
-#legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae (dead coral)'),lwd=1,lty='solid',col=c('blue','black','green','grey'))
-#abline(v=100, lty = 'dashed')
-#abline(v=340, lty = 'dashed')
-#abline(v=580, lty = 'dashed')
-#abline(v=820, lty = 'dashed')
-```
-
-50% reduction in live coral cover that is transferred to dead coral every five years; macroalgae unaffected
-```{r 50% structure-retaining disturbance five year frequency, echo = FALSE}
-
-# Create time vector, holding vectors for each state variable, and set initial conditions
-tset_bio_dist <- seq(from = 0, to = 1200)
-C_L.bio <- NaN*tset_bio_dist; C_L.bio[1] <- 0.6
-C_D.bio <- NaN*tset_bio_dist; C_D.bio[1] <- 0
-M_S.bio <- NaN*tset_bio_dist; M_S.bio[1] <- 0.05
-M_C.bio <- NaN*tset_bio_dist; M_C.bio[1] <- 0.05
-
-# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
-for(i in 2:length(tset_bio_dist)){ # For every element after the first in the time vector...
-  
- if(tset_bio_dist[i] !=t_disturb_10 & tset_bio_dist[i] !=t_disturb_11 & tset_bio_dist[i] !=t_disturb_12 & tset_bio_dist[i] !=t_disturb_13 & tset_bio_dist[i] !=t_disturb_14 & tset_bio_dist[i] !=t_disturb_15 & tset_bio_dist[i] !=t_disturb_16 & tset_bio_dist[i] !=t_disturb_17 & tset_bio_dist[i] !=t_disturb_18 & tset_bio_dist[i] !=t_disturb_19 & tset_bio_dist[i] !=t_disturb_20 & tset_bio_dist[i] !=t_disturb_21 & tset_bio_dist[i] !=t_disturb_22 & tset_bio_dist[i] !=t_disturb_23 & tset_bio_dist[i] !=t_disturb_24 & tset_bio_dist[i] !=t_disturb_25 & tset_bio_dist[i] !=t_disturb_26 & tset_bio_dist[i] !=t_disturb_27){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
-
-# calculate change in time  
-  dt <- tset_bio_dist[i] - tset_bio_dist[i-1] 
-
-  # Proportional cover at previous time step  
-  C_L <- C_L.bio[i-1] 
-  C_D <- C_D.bio[i-1]
-  M_S <- M_S.bio[i-1]
-  M_C <- M_C.bio[i-1]
- 
-# Change in proportional cover, converted to units of months (/5)
-  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-
-# Proportional cover at new time step  
-  C_L.bio[i] <- C_L.bio[i-1] + dC_L
-  C_D.bio[i] <- C_D.bio[i-1] + dC_D
-  M_S.bio[i] <- M_S.bio[i-1] + dM_S
-  M_C.bio[i] <- M_C.bio[i-1] + dM_C
-  
-  }
-
-  # ... but if the time step does equal the time of disturbance...
-    else {
-  
-  dt <- tset_bio_dist[i] - tset_bio_dist[i-1]
-
-  C_L <- C_L.bio[i-1]*0.5 # reduce live coral to 50% of its pre-disturbance level, and transfer this directly to the dead coral class
-  C_D <- C_D.bio[i-1] + (C_L.bio[i-1]-C_L)
-  M_S <- M_S.bio[i-1]
-  M_C <- M_C.bio[i-1]
-  
-  dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-  dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-  dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-  dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  
-  C_L.bio[i] <- C_L + dC_L
-  C_D.bio[i] <- C_D + dC_D
-  M_S.bio[i] <- M_S + dM_S
-  M_C.bio[i] <- M_C + dM_C
-  
-  }
-  
-}
-
-# Plot of time series for all space holders
-plot(tset_bio_dist, C_L.bio, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist)), ylim = c(0, 1))
-lines(tset_bio_dist, C_D.bio, col = "black", lwd = 1, lty = 'solid')
-lines(tset_bio_dist, M_S.bio, col = "green", lwd = 1, lty = 'solid')
-lines(tset_bio_dist, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
-#legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae  (dead coral)'), lwd=1, lty='solid', col=c('blue','black','green','grey'))
-#abline(v=100, lty = 'dashed')
-#abline(v=340, lty = 'dashed')
-#abline(v=580, lty = 'dashed')
-#abline(v=820, lty = 'dashed')
-
-```
-
-#### Equilibrium cover after 100 years of live coral and total macroalgae: ten year frequency
-
-Equilibrium cover after 100 years
-```{r Equilibrium cover structure-retaining ten years, echo=FALSE}
-
-disturb_set <- seq(from = 0, to = 1, by = .01) # Time vector for outer loop
-tset.disturb <- seq(from = 0, to = 1200) # Time vector for inner loop
-
-# create holding vectors for equilibration time following disturbance for all space holders
-C_L.bio.eq_cover <- NaN*disturb_set
-C_D.bio.eq_cover <- NaN*disturb_set
-M_S.bio.eq_cover <- NaN*disturb_set
-M_C.bio.eq_cover <- NaN*disturb_set
-
-# create outer for() loop
-# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
-for(j in 1:length(disturb_set)){
-	# assign value for 'disturb_set' for this iteration Y to that simulation
-  disturbance_severity <- disturb_set[j] 
-	
-  # create holding vectors for the inner loop
-	C_L.bio <- NaN*tset.disturb 
-	C_L.bio[1] <- 0.6
-	C_D.bio <- NaN*tset.disturb 
-	C_D.bio[1] <- 0
-	M_S.bio <- NaN*tset.disturb 
-	M_S.bio[1] <- 0.05
-	M_C.bio <- NaN*tset.disturb 
-	M_C.bio[1] <- 0.05
-
-# Inner loop	
-# for each value of 'disturb_set'
-  for(i in 2:length(tset.disturb)){
-  	
-   if(tset_phys_dist_sev[i] !=t_disturb_1 & tset_phys_dist_sev[i] !=t_disturb_2 & tset_phys_dist_sev[i] !=t_disturb_3 & tset_phys_dist_sev[i] !=t_disturb_4 & tset_phys_dist_sev[i] !=t_disturb_5 & tset_phys_dist_sev[i] !=t_disturb_6 & tset_phys_dist_sev[i] !=t_disturb_7 & tset_phys_dist_sev[i] !=t_disturb_8 & tset_phys_dist_sev[i] !=t_disturb_9){ # change in time
-    
-    # use variable assignment to create objects to plug into calculations 
-  	C_L <- C_L.bio[i-1]
-  	C_D <- C_D.bio[i-1]
-    M_S <- M_S.bio[i-1]
-  	M_C <- M_C.bio[i-1]
-  	
-  	# calculate change in proportional cover at each timestep
-    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  	
-  	
-  	# calculate the population density at each timestep
-  	C_L.bio[i] <- C_L + dC_L
-  	C_D.bio[i] <- C_D + dC_D
-  	M_S.bio[i] <- M_S + dM_S
-  	M_C.bio[i] <- M_C + dM_C
-    }
-    
-     else {
-        dt <- tset.disturb[i] - tset.disturb[i-1] # change in time
-    
-    # use variable assignment to create objects to plug into calculations 
-  	C_L <- C_L.bio[i-1]*(1-disturbance_severity)
-  	C_D <- C_D.bio[i-1] + (C_L.bio[i-1]-C_L)
-    M_S <- M_S.bio[i-1]
-  	M_C <- M_C.bio[i-1]
-  	
-  	# calculate change in proportional cover at each timestep
-    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  	
-  	
-  	# calculate the proportional cover at each timestep
-  	C_L.bio[i] <- C_L + dC_L
-  	C_D.bio[i] <- C_D + dC_D
-  	M_S.bio[i] <- M_S + dM_S
-  	M_C.bio[i] <- M_C + dM_C
-    }
-  }
-# final output is maximum cover for a given severity of disturbance
-C_L.bio.eq_cover[j] <- C_L.bio[max(tset.disturb)]
-C_D.bio.eq_cover[j] <- C_D.bio[max(tset.disturb)]
-M_S.bio.eq_cover[j] <- M_S.bio[max(tset.disturb)]
-M_C.bio.eq_cover[j] <- M_C.bio[max(tset.disturb)]
-}
-
-```
-
-
-
-#### Equilibrium cover of live coral and total macroalgae after 100: high (5 year) frequency
-
-Biological disturbances
-```{r Equilibrium cover structure-retaining five years, echo=FALSE}
-
-disturb_set <- seq(from = 0, to = 1, by = .01) # Time vector for outer loop
-tset.disturb <- seq(from = 0, to = 1200) # Time vector for inner loop
-
-# create holding vectors for equilibration time following disturbance for all space holders
-C_L.bio.eq_cover <- NaN*disturb_set
-C_D.bio.eq_cover <- NaN*disturb_set
-M_S.bio.eq_cover <- NaN*disturb_set
-M_C.bio.eq_cover <- NaN*disturb_set
-
-# create outer for() loop
-# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
-for(j in 1:length(disturb_set)){
-	# assign value for 'disturb_set' for this iteration Y to that simulation
-  disturbance_severity <- disturb_set[j] 
-	
-  # create holding vectors for the inner loop
-	C_L.bio <- NaN*tset.disturb 
-	C_L.bio[1] <- 0.6
-	C_D.bio <- NaN*tset.disturb 
-	C_D.bio[1] <- 0
-	M_S.bio <- NaN*tset.disturb 
-	M_S.bio[1] <- 0.05
-	M_C.bio <- NaN*tset.disturb 
-	M_C.bio[1] <- 0.05
-
-# Inner loop	
-# for each value of 'disturb_set'
-  if(tset_phys_dist_sev[i] !=t_disturb_10 & tset_phys_dist_sev[i] !=t_disturb_11 & tset_phys_dist_sev[i] !=t_disturb_12 & tset_phys_dist_sev[i] !=t_disturb_13 & tset_phys_dist_sev[i] !=t_disturb_14 & tset_phys_dist_sev[i] !=t_disturb_15 & tset_phys_dist_sev[i] !=t_disturb_16 & tset_phys_dist_sev[i] !=t_disturb_17 & tset_phys_dist_sev[i] !=t_disturb_18 & tset_phys_dist_sev[i] !=t_disturb_19 & tset_phys_dist_sev[i] !=t_disturb_20 & tset_phys_dist_sev[i] !=t_disturb_21 & tset_phys_dist_sev[i] !=t_disturb_22 & tset_phys_dist_sev[i] !=t_disturb_23 & tset_phys_dist_sev[i] !=t_disturb_24 & tset_phys_dist_sev[i] !=t_disturb_25 & tset_phys_dist_sev[i] !=t_disturb_26){
-    dt <- tset.disturb[i] - tset.disturb[i-1]{ # change in time
-    
-    # use variable assignment to create objects to plug into calculations 
-  	C_L <- C_L.bio[i-1]
-  	C_D <- C_D.bio[i-1]
-    M_S <- M_S.bio[i-1]
-  	M_C <- M_C.bio[i-1]
-  	
-  	# calculate change in proportional cover at each timestep
-    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  	
-  	
-  	# calculate the population density at each timestep
-  	C_L.bio[i] <- C_L + dC_L
-  	C_D.bio[i] <- C_D + dC_D
-  	M_S.bio[i] <- M_S + dM_S
-  	M_C.bio[i] <- M_C + dM_C
-    }
-    
-     else {
-        dt <- tset.disturb[i] - tset.disturb[i-1] # change in time
-    
-    # use variable assignment to create objects to plug into calculations 
-  	C_L <- C_L.bio[i-1]*(1-disturbance_severity)
-  	C_D <- C_D.bio[i-1] + (C_L.bio[i-1]-C_L)
-    M_S <- M_S.bio[i-1]
-  	M_C <- M_C.bio[i-1]
-  	
-  	# calculate change in proportional cover at each timestep
-    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  	
-  	
-  	# calculate the proportional cover at each timestep
-  	C_L.bio[i] <- C_L + dC_L
-  	C_D.bio[i] <- C_D + dC_D
-  	M_S.bio[i] <- M_S + dM_S
-  	M_C.bio[i] <- M_C + dM_C
-    }
-  }
-# final output is maximum cover for a given severity of disturbance
-C_L.bio.eq_cover[j] <- C_L.bio[max(tset.disturb)]
-C_D.bio.eq_cover[j] <- C_D.bio[max(tset.disturb)]
-M_S.bio.eq_cover[j] <- M_S.bio[max(tset.disturb)]
-M_C.bio.eq_cover[j] <- M_C.bio[max(tset.disturb)]
-}
-
-```
-
-Equilibrium cover after structure-removing disturbances every 5 years
-```{r Equilibrium cover structure-removing five years, echo=FALSE}
-
-disturb_set <- seq(from = 0, to = 1, by = .01) # Time vector for outer loop
-tset.disturb <- seq(from = 0, to = 1200) # Time vector for inner loop
-
-# create holding vectors for equilibration time following disturbance for all space holders
-C_L.phys.eq_cover <- NaN*disturb_set
-C_D.phys.eq_cover <- NaN*disturb_set
-M_S.phys.eq_cover <- NaN*disturb_set
-M_C.phys.eq_cover <- NaN*disturb_set
-
-# create outer for() loop
-# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
-for(j in 1:length(disturb_set)){
-	# assign value for 'disturb_set' for this iteration Y to that simulation
-  disturbance_severity <- disturb_set[j] 
-	
-  # create holding vectors for the inner loop
-	C_L.phys <- NaN*tset.disturb 
-	C_L.phys[1] <- 0.6
-	C_D.phys <- NaN*tset.disturb 
-	C_D.phys[1] <- 0
-	M_S.phys <- NaN*tset.disturb 
-	M_S.phys[1] <- 0.05
-	M_C.phys <- NaN*tset.disturb 
-	M_C.phys[1] <- 0.05
-
-# Inner loop	
-# for each value of 'disturb_set'
-  for(i in 2:length(tset.disturb)){
-  	
-    if(tset.disturb[i] !=t_disturb_1 & tset.disturb[i] !=t_disturb_2 & tset.disturb[i] !=t_disturb_3){
-    dt <- tset.disturb[i] - tset.disturb[i-1] # change in time
-    
-    # use variable assignment to create objects to plug into calculations 
-  	C_L <- C_L.phys[i-1]
-  	C_D <- C_D.phys[i-1]
-    M_S <- M_S.phys[i-1]
-  	M_C <- M_C.phys[i-1]
-  	
-  	# calculate change in proportional cover at each timestep
-    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  	
-  	
-  	# calculate the population density at each timestep
-  	C_L.phys[i] <- C_L + dC_L
-  	C_D.phys[i] <- C_D + dC_D
-  	M_S.phys[i] <- M_S + dM_S
-  	M_C.phys[i] <- M_C + dM_C
-    }
-    
-     else {
-        dt <- tset.disturb[i] - tset.disturb[i-1] # change in time
-    
-    # use variable assignment to create objects to plug into calculations 
-  	C_L <- C_L.phys[i-1]*(1-disturbance_severity)
-  	C_D <- C_D.phys[i-1]*(1-disturbance_severity)
-    M_S <- M_S.phys[i-1]*(1-disturbance_severity)
-  	M_C <- M_C.phys[i-1]*(1-disturbance_severity)
-  	
-  	# calculate change in proportional cover at each timestep
-    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
-    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
-  	
-  	
-  	# calculate the proportional cover at each timestep
-  	C_L.phys[i] <- C_L + dC_L
-  	C_D.phys[i] <- C_D + dC_D
-  	M_S.phys[i] <- M_S + dM_S
-  	M_C.phys[i] <- M_C + dM_C
-    }
-  }
-# final output is equilibrium cover for a given severity of disturbance
-C_L.phys.eq_cover[j] <- C_L.phys[max(tset.disturb)]
-C_D.phys.eq_cover[j] <- C_D.phys[max(tset.disturb)]
-M_S.phys.eq_cover[j] <- M_S.phys[max(tset.disturb)]
-M_C.phys.eq_cover[j] <- M_C.phys[max(tset.disturb)]
-}
-
-```
-
-Equilibrium cover, 5 years
-```{r Equilibrium cover plots five years, echo=FALSE}
-
-# Live coral
-plot(disturb_set, C_L.phys.eq_cover.half, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
-lines(disturb_set, C_L.bio.eq_cover.half, col = "red", lwd = 2, lty = 'solid', type = 'l')
-#lines(disturb_set, C_L.phys.eq_cover.two_thirds, col = "blue", lwd = 1, lty = 'dashed', type = 'l')
-#lines(disturb_set, C_L.bio.eq_cover.two_thirds, col = "red", lwd = 1, lty = 'dashed', type = 'l')
-#lines(disturb_set, C_L.phys.eq_cover.third, col = "red", lwd = 1, lty = 'dashed', type = 'l')
-#lines(disturb_set, C_L.bio.eq_cover.third, col = "red", lwd = 1, lty = 'dashed', type = 'l')
-legend(x=0.6,y=1.1,legend=c('Physical disturbance','Biological disturbance'),lwd=1,lty='solid',col=c('blue','red'))
-#legend(x=.6, y = 0.8, legend=c('hmc = 1/2(hms)', 'hmc = 1/3(hms)'),lwd=1,lty=c('dotted', 'solid', 'dashed'),col='black')
-
-# Total macroalgae
-plot(disturb_set, c(M_C.phys.eq_cover.half + M_S.phys.eq_cover.half), col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Total macroalgae")
-lines(disturb_set, c(M_C.bio.eq_cover.half + M_S.bio.eq_cover.half), col = "red", lwd = 2, lty = 'solid', type = 'l')
-#lines(disturb_set, c(M_C.phys.eq_cover.two_thirds + M_S.phys.eq_cover.two_thirds), col = "blue", lwd = 1, lty = 'dashed', type = 'l')
-#lines(disturb_set, c(M_C.bio.eq_cover.two_thirds + M_S.bio.eq_cover.two_thirds), col = "red", lwd = 1, lty = 'dashed', type = 'l')
-#lines(disturb_set, c(M_C.phys.eq_cover.third + M_S.phys.eq_cover.third), col = "blue", lwd = 1, lty = 'dashed', type = 'l')
-#lines(disturb_set, c(M_C.bio.eq_cover.third + M_S.bio.eq_cover.third), col = "red", lwd = 1, lty = 'dashed', type = 'l')
-legend(x=0.6,y=1.1,legend=c('Structure-removing','Structure-retaining'), lwd=1, lty='solid', col=c('blue','red'))
-#legend(x=.6, y = 0.8, legend=c('Grazing pressure = 1/2', 'Grazing pressure = 1/3'),lwd=1,lty=c('solid', 'dashed'),col='black')
-
-```
 
 ### Disturbance sequences: 
 
@@ -1056,7 +1100,7 @@ M_C.simu_phys_mult <- NaN*tset_phys_dist_mult; M_C.simu_phys_mult[1] <- 0.05
 
 for(i in 2:length(tset_phys_dist_mult)){ # For every element after the first in the time vector...
   
-  if(tset_phys_dist_mult[i] !=t_disturb){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+  if(tset_phys_dist_mult[i] !=200){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
   
   dt <- tset_phys_dist_mult[i] - tset_phys_dist_mult[i-1] # calculate change in time  
  
@@ -1170,7 +1214,7 @@ for(i in 2:length(tset_bio_dist_mult)){ # For every element after the first in t
 
 Plot of time series for structure removing followed by structure retaining disturbance, 5 years apart
 ```{r plot of structure-removing first five years apart}
-plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist_mult)), ylim = c(0, 1), main = "Structure-removing")
+plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist_mult)), ylim = c(0, 1), main = "Structure-removing first, five years apart")
 lines(tset_phys_dist_mult, C_D.simu_phys_mult, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_S.simu_phys_mult, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_C.simu_phys_mult, col = "grey", lwd = 1, lty = 'solid')
@@ -1310,7 +1354,7 @@ for(i in 2:length(tset_phys_dist_mult)){ # For every element after the first in 
 Plot of time series for structure removing followed by structure retaining disturbance
 ```{r plot of 50% structure retaining first five years apart}
 
-plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist_mult)), ylim = c(0, 1), main = "Structure-removing")
+plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist_mult)), ylim = c(0, 1), main = "Structure-retaining first, five years apart")
 lines(tset_phys_dist_mult, C_D.simu_phys_mult, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_S.simu_phys_mult, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_C.simu_phys_mult, col = "grey", lwd = 1, lty = 'solid')
@@ -1451,7 +1495,7 @@ for(i in 2:length(tset_bio_dist_mult)){ # For every element after the first in t
 
 Plot of time series for structure removing followed by structure retaining disturbance, ten years apart
 ```{r structure-removing first ten years apart}
-plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist_mult)), ylim = c(0, 1), main = "Structure-removing first")
+plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist_mult)), ylim = c(0, 1), main = "Structure-removing first, ten years apart")
 lines(tset_phys_dist_mult, C_D.simu_phys_mult, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_S.simu_phys_mult, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_C.simu_phys_mult, col = "grey", lwd = 1, lty = 'solid')
@@ -1590,7 +1634,7 @@ for(i in 2:length(tset_phys_dist_mult)){ # For every element after the first in 
 
 Plot of time series for structure retaining followed by structure removing disturbance
 ```{r structure retaining first 10 years apart}
-plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist_mult)), ylim = c(0, 1), main = "Structure-retaining first")
+plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist_mult)), ylim = c(0, 1), main = "Structure-retaining first, ten years apart")
 lines(tset_phys_dist_mult, C_D.simu_phys_mult, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_S.simu_phys_mult, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_C.simu_phys_mult, col = "grey", lwd = 1, lty = 'solid')
@@ -1730,7 +1774,7 @@ for(i in 2:length(tset_phys_dist_mult)){ # For every element after the first in 
 Plot of time series for structure removing followed by structure retaining disturbance
 ```{r stucture retaining first two years}
 
-plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist_mult)), ylim = c(0, 1), main = "Structure-retaining first")
+plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_phys_dist_mult)), ylim = c(0, 1), main = "Structure-retaining first, two years apart")
 lines(tset_phys_dist_mult, C_D.simu_phys_mult, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_S.simu_phys_mult, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_C.simu_phys_mult, col = "grey", lwd = 1, lty = 'solid')
@@ -1870,7 +1914,7 @@ for(i in 2:length(tset_phys_dist_mult)){ # For every element after the first in 
 Plot of time series for structure removing followed by structure retaining disturbance
 ```{r structure-removing first two years}
 
-plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist_mult)), ylim = c(0, 1), main = "Structure-removing first")
+plot(tset_phys_dist_mult, C_L.simu_phys_mult, col = "blue", lwd = 1, lty = 'solid', type = 'l', xlab = "Time (months)", ylab = "Proportional cover", xlim = c(0, max(tset_bio_dist_mult)), ylim = c(0, 1), main = "Structure-removing first, 2 years apart")
 lines(tset_phys_dist_mult, C_D.simu_phys_mult, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_S.simu_phys_mult, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist_mult, M_C.simu_phys_mult, col = "grey", lwd = 1, lty = 'solid')
@@ -1880,4 +1924,1050 @@ lines(tset_bio_dist_mult, M_S.bio, col = "green", lwd = 1, lty = 'solid')
 lines(tset_bio_dist_mult, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
 abline(v=200, lty = 'dashed', col = "blue")
 abline(v=225, lty = 'dashed', col = "red")
+```
+
+#### Different sequences equilibrium cover
+
+Structure removing first
+```{r Equilibrium cover structure-removing first, echo=FALSE}
+
+tset_phys.phys_first <- seq(from = 0, to = 319)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.phys.eq_cover.phys_first <- NaN*disturb_set
+C_D.phys.eq_cover.phys_first <- NaN*disturb_set
+M_S.phys.eq_cover.phys_first <- NaN*disturb_set
+M_C.phys.eq_cover.phys_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.phys.phys_first <- NaN*tset_phys.phys_first 
+	C_L.phys.phys_first[1] <- 0.6
+	C_D.phys.phys_first <- NaN*tset_phys.phys_first 
+	C_D.phys.phys_first[1] <- 0
+	M_S.phys.phys_first <- NaN*tset_phys.phys_first 
+	M_S.phys.phys_first[1] <- 0.05
+	M_C.phys.phys_first <- NaN*tset_phys.phys_first 
+	M_C.phys.phys_first[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+  for(i in 2:length(tset_phys.phys_first)){
+  	
+   if(tset_phys.phys_first[i] !=t_disturb){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.phys_first[i-1]
+  	C_D <- C_D.phys.phys_first[i-1]
+    M_S <- M_S.phys.phys_first[i-1]
+  	M_C <- M_C.phys.phys_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.phys.phys_first[i] <- C_L + dC_L
+  	C_D.phys.phys_first[i] <- C_D + dC_D
+  	M_S.phys.phys_first[i] <- M_S + dM_S
+  	M_C.phys.phys_first[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_phys.phys_first[i] - tset_phys.phys_first[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.phys_first[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.phys.phys_first[i-1]*(1-disturbance_severity)
+    M_S <- M_S.phys.phys_first[i-1]*(1-disturbance_severity)
+  	M_C <- M_C.phys.phys_first[i-1]*(1-disturbance_severity)
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.phys.phys_first[i] <- C_L + dC_L
+  	C_D.phys.phys_first[i] <- C_D + dC_D
+  	M_S.phys.phys_first[i] <- M_S + dM_S
+  	M_C.phys.phys_first[i] <- M_C + dM_C
+    }
+  }
+# final output is equilibrium cover for a given severity of disturbance
+C_L.phys.eq_cover.phys_first[j] <- C_L.phys.phys_first[max(tset_phys.phys_first)]
+C_D.phys.eq_cover.phys_first[j] <- C_D.phys.phys_first[max(tset_phys.phys_first)]
+M_S.phys.eq_cover.phys_first[j] <- M_S.phys.phys_first[max(tset_phys.phys_first)]
+M_C.phys.eq_cover.phys_first[j] <- M_C.phys.phys_first[max(tset_phys.phys_first)]
+}
+
+```
+
+```{r Equilibrium cover structure-retaining second, echo=FALSE}
+
+tset_bio.phys_first <- seq(from = 319, to = 1200)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.bio.eq_cover.phys_first <- NaN*disturb_set
+C_D.bio.eq_cover.phys_first <- NaN*disturb_set
+M_S.bio.eq_cover.phys_first <- NaN*disturb_set
+M_C.bio.eq_cover.phys_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(k in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[k] 
+	
+  # create holding vectors for the inner loop
+	C_L.bio.phys_first <- NaN*tset_bio.phys_first 
+	C_L.bio.phys_first[1] <- C_L.phys.phys_first[max(tset_phys.phys_first)]
+	C_D.bio.phys_first <- NaN*tset_bio.phys_first 
+	C_D.bio.phys_first[1] <- C_D.phys.phys_first[max(tset_phys.phys_first)]
+	M_S.bio.phys_first <- NaN*tset_bio.phys_first 
+	M_S.bio.phys_first[1] <- M_S.phys.phys_first[max(tset_phys.phys_first)]
+	M_C.bio.phys_first <- NaN*tset_bio.phys_first 
+	M_C.bio.phys_first[1] <- M_C.phys.phys_first[max(tset_phys.phys_first)]
+
+# Inner loop	
+# for each value of 'disturb_set'
+	for(l in 2:length(tset_bio.phys_first)){
+	  
+  if(tset_bio.phys_first[l] !=322){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.phys_first[l-1]
+  	C_D <- C_D.bio.phys_first[l-1]
+    M_S <- M_S.bio.phys_first[l-1]
+  	M_C <- M_C.bio.phys_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.bio.phys_first[l] <- C_L + dC_L
+  	C_D.bio.phys_first[l] <- C_D + dC_D
+  	M_S.bio.phys_first[l] <- M_S + dM_S
+  	M_C.bio.phys_first[l] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_bio.phys_first[l] - tset_bio.phys_first[l-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.phys_first[l-1]*(1-disturbance_severity)
+  	C_D <- C_D.bio.phys_first[l-1] + (C_L.bio.phys_first[l-1]-C_L)
+    M_S <- M_S.bio.phys_first[l-1]
+  	M_C <- M_C.bio.phys_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.bio.phys_first[l] <- C_L + dC_L
+  	C_D.bio.phys_first[l] <- C_D + dC_D
+  	M_S.bio.phys_first[l] <- M_S + dM_S
+  	M_C.bio.phys_first[l] <- M_C + dM_C
+     }
+  }
+# final output is maximum cover for a given severity of disturbance
+C_L.bio.eq_cover.phys_first[k] <- C_L.bio.phys_first[880]
+C_D.bio.eq_cover.phys_first[k] <- C_D.bio.phys_first[880]
+M_S.bio.eq_cover.phys_first[k] <- M_S.bio.phys_first[880]
+M_C.bio.eq_cover.phys_first[k] <- M_C.bio.phys_first[880]
+}
+
+```
+
+Structure-retaining first
+```{r Equilibrium cover structure-retaining first, echo=FALSE}
+
+tset_bio.bio_first <- seq(from = 0, to = 319)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.bio.eq_cover.bio_first <- NaN*disturb_set
+C_D.bio.eq_cover.bio_first <- NaN*disturb_set
+M_S.bio.eq_cover.bio_first <- NaN*disturb_set
+M_C.bio.eq_cover.bio_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.bio.bio_first <- NaN*tset_bio.bio_first 
+	C_L.bio.bio_first[1] <- 0.6
+	C_D.bio.bio_first <- NaN*tset_bio.bio_first 
+	C_D.bio.bio_first[1] <- 0
+	M_S.bio.bio_first <- NaN*tset_bio.bio_first 
+	M_S.bio.bio_first[1] <- 0.05
+	M_C.bio.bio_first <- NaN*tset_bio.bio_first 
+	M_C.bio.bio_first[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+  for(i in 2:length(tset_bio.bio_first)){
+  	
+   if(tset_bio.bio_first[i] !=t_disturb){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.bio_first[i-1]
+  	C_D <- C_D.bio.bio_first[i-1]
+    M_S <- M_S.bio.bio_first[i-1]
+  	M_C <- M_C.bio.bio_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.bio.bio_first[i] <- C_L + dC_L
+  	C_D.bio.bio_first[i] <- C_D + dC_D
+  	M_S.bio.bio_first[i] <- M_S + dM_S
+  	M_C.bio.bio_first[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_bio.bio_first[i] - tset_bio.bio_first[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.bio_first[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.bio.bio_first[i-1] + (C_L.bio.bio_first[i-1]-C_L)
+    M_S <- M_S.bio.bio_first[i-1]
+  	M_C <- M_C.bio.bio_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.bio.bio_first[i] <- C_L + dC_L
+  	C_D.bio.bio_first[i] <- C_D + dC_D
+  	M_S.bio.bio_first[i] <- M_S + dM_S
+  	M_C.bio.bio_first[i] <- M_C + dM_C
+    }
+  }
+# final output is equilibrium cover for a given severity of disturbance
+C_L.bio.eq_cover.bio_first[j] <- C_L.bio.bio_first[max(tset_bio.bio_first)]
+C_D.bio.eq_cover.bio_first[j] <- C_D.bio.bio_first[max(tset_bio.bio_first)]
+M_S.bio.eq_cover.bio_first[j] <- M_S.bio.bio_first[max(tset_bio.bio_first)]
+M_C.bio.eq_cover.bio_first[j] <- M_C.bio.bio_first[max(tset_bio.bio_first)]
+}
+
+```
+
+```{r Equilibrium cover structure-removing second, echo=FALSE}
+
+tset_phys.bio_first <- seq(from = 319, to = 1200)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.phys.eq_cover.bio_first <- NaN*disturb_set
+C_D.phys.eq_cover.bio_first <- NaN*disturb_set
+M_S.phys.eq_cover.bio_first <- NaN*disturb_set
+M_C.phys.eq_cover.bio_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(k in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[k] 
+	
+  # create holding vectors for the inner loop
+	C_L.phys.bio_first <- NaN*tset_phys.bio_first 
+	C_L.phys.bio_first[1] <- C_L.bio.bio_first[319]
+	C_D.phys.bio_first <- NaN*tset_phys.bio_first 
+	C_D.phys.bio_first[1] <- C_D.bio.bio_first[319]
+	M_S.phys.bio_first <- NaN*tset_phys.bio_first 
+	M_S.phys.bio_first[1] <- M_S.bio.bio_first[319]
+	M_C.phys.bio_first <- NaN*tset_phys.bio_first 
+	M_C.phys.bio_first[1] <- M_C.bio.bio_first[319]
+
+# Inner loop	
+# for each value of 'disturb_set'
+	for(l in 2:length(tset_phys.bio_first)){
+	  
+  if(tset_phys.bio_first[l] !=322){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.bio_first[l-1]
+  	C_D <- C_D.phys.bio_first[l-1]
+    M_S <- M_S.phys.bio_first[l-1]
+  	M_C <- M_C.phys.bio_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.phys.bio_first[l] <- C_L + dC_L
+  	C_D.phys.bio_first[l] <- C_D + dC_D
+  	M_S.phys.bio_first[l] <- M_S + dM_S
+  	M_C.phys.bio_first[l] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_phys.bio_first[l] - tset_phys.bio_first[l-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.bio_first[l-1]*(1-disturbance_severity)
+  	C_D <- C_D.phys.bio_first[l-1] + (C_L.phys.bio_first[l-1]-C_L)
+    M_S <- M_S.phys.bio_first[l-1]
+  	M_C <- M_C.phys.bio_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.phys.bio_first[l] <- C_L + dC_L
+  	C_D.phys.bio_first[l] <- C_D + dC_D
+  	M_S.phys.bio_first[l] <- M_S + dM_S
+  	M_C.phys.bio_first[l] <- M_C + dM_C
+     }
+  }
+# final output is maximum cover for a given severity of disturbance
+C_L.phys.eq_cover.bio_first[k] <- C_L.phys.bio_first[880]
+C_D.phys.eq_cover.bio_first[k] <- C_D.phys.bio_first[880]
+M_S.phys.eq_cover.bio_first[k] <- M_S.phys.bio_first[880]
+M_C.phys.eq_cover.bio_first[k] <- M_C.phys.bio_first[880]
+}
+
+```
+
+```{r Equilibrium cover plots, echo=FALSE}
+
+# Live coral
+plot(disturb_set, C_L.bio.eq_cover.phys_first, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
+lines(disturb_set, C_L.phys.eq_cover.bio_first, col = "red", lwd = 2, lty = 'solid', type = 'l')
+#legend(x=0.6,y=1.1,legend=c('Structure-removing disturbance','Structure-retaining disturbance','10-year frequency','5-year frequency'),lwd=1,lty=c('solid','solid','dotted','dotted'),col=c('blue','red', 'black','black'))
+
+# Total macroalgae
+plot(disturb_set, c(M_C.phys.eq_cover.phys_first + M_S.phys.eq_cover.phys_first), col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Total macroalgae")
+lines(disturb_set, c(M_C.bio.eq_cover.phys_first + M_S.bio.eq_cover.phys_first), col = "red", lwd = 2, lty = 'solid', type = 'l')
+#legend(x=0.6,y=1.1,legend=c('Structure-removing','Structure-retaining'), lwd=1, lty='solid', col=c('blue','red'))
+
+```
+
+Five years apart
+```{r Equilibrium cover structure-removing first, echo=FALSE}
+
+tset_phys.phys_first <- seq(from = 0, to = 259)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.phys.eq_cover.phys_first <- NaN*disturb_set
+C_D.phys.eq_cover.phys_first <- NaN*disturb_set
+M_S.phys.eq_cover.phys_first <- NaN*disturb_set
+M_C.phys.eq_cover.phys_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.phys.phys_first <- NaN*tset_phys.phys_first 
+	C_L.phys.phys_first[1] <- 0.6
+	C_D.phys.phys_first <- NaN*tset_phys.phys_first 
+	C_D.phys.phys_first[1] <- 0
+	M_S.phys.phys_first <- NaN*tset_phys.phys_first 
+	M_S.phys.phys_first[1] <- 0.05
+	M_C.phys.phys_first <- NaN*tset_phys.phys_first 
+	M_C.phys.phys_first[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+  for(i in 2:length(tset_phys.phys_first)){
+  	
+   if(tset_phys.phys_first[i] !=t_disturb){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.phys_first[i-1]
+  	C_D <- C_D.phys.phys_first[i-1]
+    M_S <- M_S.phys.phys_first[i-1]
+  	M_C <- M_C.phys.phys_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.phys.phys_first[i] <- C_L + dC_L
+  	C_D.phys.phys_first[i] <- C_D + dC_D
+  	M_S.phys.phys_first[i] <- M_S + dM_S
+  	M_C.phys.phys_first[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_phys.phys_first[i] - tset_phys.phys_first[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.phys_first[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.phys.phys_first[i-1]*(1-disturbance_severity)
+    M_S <- M_S.phys.phys_first[i-1]*(1-disturbance_severity)
+  	M_C <- M_C.phys.phys_first[i-1]*(1-disturbance_severity)
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.phys.phys_first[i] <- C_L + dC_L
+  	C_D.phys.phys_first[i] <- C_D + dC_D
+  	M_S.phys.phys_first[i] <- M_S + dM_S
+  	M_C.phys.phys_first[i] <- M_C + dM_C
+    }
+  }
+# final output is equilibrium cover for a given severity of disturbance
+C_L.phys.eq_cover.phys_first[j] <- C_L.phys.phys_first[max(tset_phys.phys_first)]
+C_D.phys.eq_cover.phys_first[j] <- C_D.phys.phys_first[max(tset_phys.phys_first)]
+M_S.phys.eq_cover.phys_first[j] <- M_S.phys.phys_first[max(tset_phys.phys_first)]
+M_C.phys.eq_cover.phys_first[j] <- M_C.phys.phys_first[max(tset_phys.phys_first)]
+}
+
+```
+
+```{r Equilibrium cover structure-retaining second, echo=FALSE}
+
+tset_bio.phys_first <- seq(from = 259, to = 1200)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.bio.eq_cover.phys_first <- NaN*disturb_set
+C_D.bio.eq_cover.phys_first <- NaN*disturb_set
+M_S.bio.eq_cover.phys_first <- NaN*disturb_set
+M_C.bio.eq_cover.phys_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(k in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[k] 
+	
+  # create holding vectors for the inner loop
+	C_L.bio.phys_first <- NaN*tset_bio.phys_first 
+	C_L.bio.phys_first[1] <- C_L.phys.phys_first[max(tset_phys.phys_first)]
+	C_D.bio.phys_first <- NaN*tset_bio.phys_first 
+	C_D.bio.phys_first[1] <- C_D.phys.phys_first[max(tset_phys.phys_first)]
+	M_S.bio.phys_first <- NaN*tset_bio.phys_first 
+	M_S.bio.phys_first[1] <- M_S.phys.phys_first[max(tset_phys.phys_first)]
+	M_C.bio.phys_first <- NaN*tset_bio.phys_first 
+	M_C.bio.phys_first[1] <- M_C.phys.phys_first[max(tset_phys.phys_first)]
+
+# Inner loop	
+# for each value of 'disturb_set'
+	for(l in 2:length(tset_bio.phys_first)){
+	  
+  if(tset_bio.phys_first[l] !=262){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.phys_first[l-1]
+  	C_D <- C_D.bio.phys_first[l-1]
+    M_S <- M_S.bio.phys_first[l-1]
+  	M_C <- M_C.bio.phys_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.bio.phys_first[l] <- C_L + dC_L
+  	C_D.bio.phys_first[l] <- C_D + dC_D
+  	M_S.bio.phys_first[l] <- M_S + dM_S
+  	M_C.bio.phys_first[l] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_bio.phys_first[l] - tset_bio.phys_first[l-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.phys_first[l-1]*(1-disturbance_severity)
+  	C_D <- C_D.bio.phys_first[l-1] + (C_L.bio.phys_first[l-1]-C_L)
+    M_S <- M_S.bio.phys_first[l-1]
+  	M_C <- M_C.bio.phys_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.bio.phys_first[l] <- C_L + dC_L
+  	C_D.bio.phys_first[l] <- C_D + dC_D
+  	M_S.bio.phys_first[l] <- M_S + dM_S
+  	M_C.bio.phys_first[l] <- M_C + dM_C
+     }
+  }
+# final output is maximum cover for a given severity of disturbance
+C_L.bio.eq_cover.phys_first[k] <- C_L.bio.phys_first[880]
+C_D.bio.eq_cover.phys_first[k] <- C_D.bio.phys_first[880]
+M_S.bio.eq_cover.phys_first[k] <- M_S.bio.phys_first[880]
+M_C.bio.eq_cover.phys_first[k] <- M_C.bio.phys_first[880]
+}
+
+```
+
+Structure retaining first
+```{r Equilibrium cover structure-retaining first, echo=FALSE}
+
+tset_bio.bio_first <- seq(from = 0, to = 259)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.bio.eq_cover.bio_first <- NaN*disturb_set
+C_D.bio.eq_cover.bio_first <- NaN*disturb_set
+M_S.bio.eq_cover.bio_first <- NaN*disturb_set
+M_C.bio.eq_cover.bio_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.bio.bio_first <- NaN*tset_bio.bio_first 
+	C_L.bio.bio_first[1] <- 0.6
+	C_D.bio.bio_first <- NaN*tset_bio.bio_first 
+	C_D.bio.bio_first[1] <- 0
+	M_S.bio.bio_first <- NaN*tset_bio.bio_first 
+	M_S.bio.bio_first[1] <- 0.05
+	M_C.bio.bio_first <- NaN*tset_bio.bio_first 
+	M_C.bio.bio_first[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+  for(i in 2:length(tset_bio.bio_first)){
+  	
+   if(tset_bio.bio_first[i] !=t_disturb){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.bio_first[i-1]
+  	C_D <- C_D.bio.bio_first[i-1]
+    M_S <- M_S.bio.bio_first[i-1]
+  	M_C <- M_C.bio.bio_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.bio.bio_first[i] <- C_L + dC_L
+  	C_D.bio.bio_first[i] <- C_D + dC_D
+  	M_S.bio.bio_first[i] <- M_S + dM_S
+  	M_C.bio.bio_first[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_bio.bio_first[i] - tset_bio.bio_first[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.bio_first[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.bio.bio_first[i-1] + (C_L.bio.bio_first[i-1]-C_L)
+    M_S <- M_S.bio.bio_first[i-1]
+  	M_C <- M_C.bio.bio_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.bio.bio_first[i] <- C_L + dC_L
+  	C_D.bio.bio_first[i] <- C_D + dC_D
+  	M_S.bio.bio_first[i] <- M_S + dM_S
+  	M_C.bio.bio_first[i] <- M_C + dM_C
+    }
+  }
+# final output is equilibrium cover for a given severity of disturbance
+C_L.bio.eq_cover.bio_first[j] <- C_L.bio.bio_first[max(tset_bio.bio_first)]
+C_D.bio.eq_cover.bio_first[j] <- C_D.bio.bio_first[max(tset_bio.bio_first)]
+M_S.bio.eq_cover.bio_first[j] <- M_S.bio.bio_first[max(tset_bio.bio_first)]
+M_C.bio.eq_cover.bio_first[j] <- M_C.bio.bio_first[max(tset_bio.bio_first)]
+}
+
+```
+
+```{r Equilibrium cover structure-removing second, echo=FALSE}
+
+tset_phys.bio_first <- seq(from = 259, to = 1200)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.phys.eq_cover.bio_first <- NaN*disturb_set
+C_D.phys.eq_cover.bio_first <- NaN*disturb_set
+M_S.phys.eq_cover.bio_first <- NaN*disturb_set
+M_C.phys.eq_cover.bio_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(k in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[k] 
+	
+  # create holding vectors for the inner loop
+	C_L.phys.bio_first <- NaN*tset_phys.bio_first 
+	C_L.phys.bio_first[1] <- C_L.bio.bio_first[259]
+	C_D.phys.bio_first <- NaN*tset_phys.bio_first 
+	C_D.phys.bio_first[1] <- C_D.bio.bio_first[259]
+	M_S.phys.bio_first <- NaN*tset_phys.bio_first 
+	M_S.phys.bio_first[1] <- M_S.bio.bio_first[259]
+	M_C.phys.bio_first <- NaN*tset_phys.bio_first 
+	M_C.phys.bio_first[1] <- M_C.bio.bio_first[259]
+
+# Inner loop	
+# for each value of 'disturb_set'
+	for(l in 2:length(tset_phys.bio_first)){
+	  
+  if(tset_phys.bio_first[l] !=262){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.bio_first[l-1]
+  	C_D <- C_D.phys.bio_first[l-1]
+    M_S <- M_S.phys.bio_first[l-1]
+  	M_C <- M_C.phys.bio_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.phys.bio_first[l] <- C_L + dC_L
+  	C_D.phys.bio_first[l] <- C_D + dC_D
+  	M_S.phys.bio_first[l] <- M_S + dM_S
+  	M_C.phys.bio_first[l] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_phys.bio_first[l] - tset_phys.bio_first[l-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.bio_first[l-1]*(1-disturbance_severity)
+  	C_D <- C_D.phys.bio_first[l-1] + (C_L.phys.bio_first[l-1]-C_L)
+    M_S <- M_S.phys.bio_first[l-1]
+  	M_C <- M_C.phys.bio_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.phys.bio_first[l] <- C_L + dC_L
+  	C_D.phys.bio_first[l] <- C_D + dC_D
+  	M_S.phys.bio_first[l] <- M_S + dM_S
+  	M_C.phys.bio_first[l] <- M_C + dM_C
+     }
+  }
+# final output is maximum cover for a given severity of disturbance
+C_L.phys.eq_cover.bio_first[k] <- C_L.phys.bio_first[880]
+C_D.phys.eq_cover.bio_first[k] <- C_D.phys.bio_first[880]
+M_S.phys.eq_cover.bio_first[k] <- M_S.phys.bio_first[880]
+M_C.phys.eq_cover.bio_first[k] <- M_C.phys.bio_first[880]
+}
+
+```
+
+```{r Equilibrium cover plots, echo=FALSE}
+
+# Live coral
+plot(disturb_set, C_L.bio.eq_cover.phys_first, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
+lines(disturb_set, C_L.phys.eq_cover.bio_first, col = "red", lwd = 2, lty = 'solid', type = 'l')
+#legend(x=0.6,y=1.1,legend=c('Structure-removing disturbance','Structure-retaining disturbance','10-year frequency','5-year frequency'),lwd=1,lty=c('solid','solid','dotted','dotted'),col=c('blue','red', 'black','black'))
+
+# Total macroalgae
+plot(disturb_set, c(M_C.phys.eq_cover.phys_first + M_S.phys.eq_cover.phys_first), col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Total macroalgae")
+lines(disturb_set, c(M_C.bio.eq_cover.phys_first + M_S.bio.eq_cover.phys_first), col = "red", lwd = 2, lty = 'solid', type = 'l')
+#legend(x=0.6,y=1.1,legend=c('Structure-removing','Structure-retaining'), lwd=1, lty='solid', col=c('blue','red'))
+
+```
+
+#### Fifteen years apart
+```{r Equilibrium cover structure-removing first, echo=FALSE}
+
+tset_phys.phys_first <- seq(from = 0, to = 379)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.phys.eq_cover.phys_first <- NaN*disturb_set
+C_D.phys.eq_cover.phys_first <- NaN*disturb_set
+M_S.phys.eq_cover.phys_first <- NaN*disturb_set
+M_C.phys.eq_cover.phys_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.phys.phys_first <- NaN*tset_phys.phys_first 
+	C_L.phys.phys_first[1] <- 0.6
+	C_D.phys.phys_first <- NaN*tset_phys.phys_first 
+	C_D.phys.phys_first[1] <- 0
+	M_S.phys.phys_first <- NaN*tset_phys.phys_first 
+	M_S.phys.phys_first[1] <- 0.05
+	M_C.phys.phys_first <- NaN*tset_phys.phys_first 
+	M_C.phys.phys_first[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+  for(i in 2:length(tset_phys.phys_first)){
+  	
+   if(tset_phys.phys_first[i] !=t_disturb){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.phys_first[i-1]
+  	C_D <- C_D.phys.phys_first[i-1]
+    M_S <- M_S.phys.phys_first[i-1]
+  	M_C <- M_C.phys.phys_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.phys.phys_first[i] <- C_L + dC_L
+  	C_D.phys.phys_first[i] <- C_D + dC_D
+  	M_S.phys.phys_first[i] <- M_S + dM_S
+  	M_C.phys.phys_first[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_phys.phys_first[i] - tset_phys.phys_first[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.phys_first[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.phys.phys_first[i-1]*(1-disturbance_severity)
+    M_S <- M_S.phys.phys_first[i-1]*(1-disturbance_severity)
+  	M_C <- M_C.phys.phys_first[i-1]*(1-disturbance_severity)
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.phys.phys_first[i] <- C_L + dC_L
+  	C_D.phys.phys_first[i] <- C_D + dC_D
+  	M_S.phys.phys_first[i] <- M_S + dM_S
+  	M_C.phys.phys_first[i] <- M_C + dM_C
+    }
+  }
+# final output is equilibrium cover for a given severity of disturbance
+C_L.phys.eq_cover.phys_first[j] <- C_L.phys.phys_first[max(tset_phys.phys_first)]
+C_D.phys.eq_cover.phys_first[j] <- C_D.phys.phys_first[max(tset_phys.phys_first)]
+M_S.phys.eq_cover.phys_first[j] <- M_S.phys.phys_first[max(tset_phys.phys_first)]
+M_C.phys.eq_cover.phys_first[j] <- M_C.phys.phys_first[max(tset_phys.phys_first)]
+}
+
+```
+
+```{r Equilibrium cover structure-retaining second, echo=FALSE}
+
+tset_bio.phys_first <- seq(from = 379, to = 1200)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.bio.eq_cover.phys_first <- NaN*disturb_set
+C_D.bio.eq_cover.phys_first <- NaN*disturb_set
+M_S.bio.eq_cover.phys_first <- NaN*disturb_set
+M_C.bio.eq_cover.phys_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(k in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[k] 
+	
+  # create holding vectors for the inner loop
+	C_L.bio.phys_first <- NaN*tset_bio.phys_first 
+	C_L.bio.phys_first[1] <- C_L.phys.phys_first[max(tset_phys.phys_first)]
+	C_D.bio.phys_first <- NaN*tset_bio.phys_first 
+	C_D.bio.phys_first[1] <- C_D.phys.phys_first[max(tset_phys.phys_first)]
+	M_S.bio.phys_first <- NaN*tset_bio.phys_first 
+	M_S.bio.phys_first[1] <- M_S.phys.phys_first[max(tset_phys.phys_first)]
+	M_C.bio.phys_first <- NaN*tset_bio.phys_first 
+	M_C.bio.phys_first[1] <- M_C.phys.phys_first[max(tset_phys.phys_first)]
+
+# Inner loop	
+# for each value of 'disturb_set'
+	for(l in 2:length(tset_bio.phys_first)){
+	  
+  if(tset_bio.phys_first[l] !=382){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.phys_first[l-1]
+  	C_D <- C_D.bio.phys_first[l-1]
+    M_S <- M_S.bio.phys_first[l-1]
+  	M_C <- M_C.bio.phys_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.bio.phys_first[l] <- C_L + dC_L
+  	C_D.bio.phys_first[l] <- C_D + dC_D
+  	M_S.bio.phys_first[l] <- M_S + dM_S
+  	M_C.bio.phys_first[l] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_bio.phys_first[l] - tset_bio.phys_first[l-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.phys_first[l-1]*(1-disturbance_severity)
+  	C_D <- C_D.bio.phys_first[l-1] + (C_L.bio.phys_first[l-1]-C_L)
+    M_S <- M_S.bio.phys_first[l-1]
+  	M_C <- M_C.bio.phys_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.bio.phys_first[l] <- C_L + dC_L
+  	C_D.bio.phys_first[l] <- C_D + dC_D
+  	M_S.bio.phys_first[l] <- M_S + dM_S
+  	M_C.bio.phys_first[l] <- M_C + dM_C
+     }
+  }
+# final output is maximum cover for a given severity of disturbance
+C_L.bio.eq_cover.phys_first[k] <- C_L.bio.phys_first[880]
+C_D.bio.eq_cover.phys_first[k] <- C_D.bio.phys_first[880]
+M_S.bio.eq_cover.phys_first[k] <- M_S.bio.phys_first[880]
+M_C.bio.eq_cover.phys_first[k] <- M_C.bio.phys_first[880]
+}
+
+```
+
+Structure retaining first
+```{r Equilibrium cover structure-retaining first, echo=FALSE}
+
+tset_bio.bio_first <- seq(from = 0, to = 379)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.bio.eq_cover.bio_first <- NaN*disturb_set
+C_D.bio.eq_cover.bio_first <- NaN*disturb_set
+M_S.bio.eq_cover.bio_first <- NaN*disturb_set
+M_C.bio.eq_cover.bio_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(j in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[j] 
+	
+  # create holding vectors for the inner loop
+	C_L.bio.bio_first <- NaN*tset_bio.bio_first 
+	C_L.bio.bio_first[1] <- 0.6
+	C_D.bio.bio_first <- NaN*tset_bio.bio_first 
+	C_D.bio.bio_first[1] <- 0
+	M_S.bio.bio_first <- NaN*tset_bio.bio_first 
+	M_S.bio.bio_first[1] <- 0.05
+	M_C.bio.bio_first <- NaN*tset_bio.bio_first 
+	M_C.bio.bio_first[1] <- 0.05
+
+# Inner loop	
+# for each value of 'disturb_set'
+  for(i in 2:length(tset_bio.bio_first)){
+  	
+   if(tset_bio.bio_first[i] !=t_disturb){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.bio_first[i-1]
+  	C_D <- C_D.bio.bio_first[i-1]
+    M_S <- M_S.bio.bio_first[i-1]
+  	M_C <- M_C.bio.bio_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.bio.bio_first[i] <- C_L + dC_L
+  	C_D.bio.bio_first[i] <- C_D + dC_D
+  	M_S.bio.bio_first[i] <- M_S + dM_S
+  	M_C.bio.bio_first[i] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_bio.bio_first[i] - tset_bio.bio_first[i-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.bio.bio_first[i-1]*(1-disturbance_severity)
+  	C_D <- C_D.bio.bio_first[i-1] + (C_L.bio.bio_first[i-1]-C_L)
+    M_S <- M_S.bio.bio_first[i-1]
+  	M_C <- M_C.bio.bio_first[i-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.bio.bio_first[i] <- C_L + dC_L
+  	C_D.bio.bio_first[i] <- C_D + dC_D
+  	M_S.bio.bio_first[i] <- M_S + dM_S
+  	M_C.bio.bio_first[i] <- M_C + dM_C
+    }
+  }
+# final output is equilibrium cover for a given severity of disturbance
+C_L.bio.eq_cover.bio_first[j] <- C_L.bio.bio_first[max(tset_bio.bio_first)]
+C_D.bio.eq_cover.bio_first[j] <- C_D.bio.bio_first[max(tset_bio.bio_first)]
+M_S.bio.eq_cover.bio_first[j] <- M_S.bio.bio_first[max(tset_bio.bio_first)]
+M_C.bio.eq_cover.bio_first[j] <- M_C.bio.bio_first[max(tset_bio.bio_first)]
+}
+
+```
+
+```{r Equilibrium cover structure-removing second, echo=FALSE}
+
+tset_phys.bio_first <- seq(from = 379, to = 1200)
+# create holding vectors for equilibration time following disturbance for all space holders
+C_L.phys.eq_cover.bio_first <- NaN*disturb_set
+C_D.phys.eq_cover.bio_first <- NaN*disturb_set
+M_S.phys.eq_cover.bio_first <- NaN*disturb_set
+M_C.phys.eq_cover.bio_first <- NaN*disturb_set
+
+# create outer for() loop
+# for each value j from 1 to the end of disturb_set (so for each value of disturb_set)
+for(k in 1:length(disturb_set)){
+	# assign value for 'disturb_set' for this iteration Y to that simulation
+  disturbance_severity <- disturb_set[k] 
+	
+  # create holding vectors for the inner loop
+	C_L.phys.bio_first <- NaN*tset_phys.bio_first 
+	C_L.phys.bio_first[1] <- C_L.bio.bio_first[max(tset_bio.bio_first)]
+	C_D.phys.bio_first <- NaN*tset_phys.bio_first 
+	C_D.phys.bio_first[1] <- C_D.bio.bio_first[max(tset_bio.bio_first)]
+	M_S.phys.bio_first <- NaN*tset_phys.bio_first 
+	M_S.phys.bio_first[1] <- M_S.bio.bio_first[max(tset_bio.bio_first)]
+	M_C.phys.bio_first <- NaN*tset_phys.bio_first 
+	M_C.phys.bio_first[1] <- M_C.bio.bio_first[max(tset_bio.bio_first)]
+
+# Inner loop	
+# for each value of 'disturb_set'
+	for(l in 2:length(tset_phys.bio_first)){
+	  
+  if(tset_phys.bio_first[l] !=382){ # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.bio_first[l-1]
+  	C_D <- C_D.phys.bio_first[l-1]
+    M_S <- M_S.phys.bio_first[l-1]
+  	M_C <- M_C.phys.bio_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the population density at each timestep
+  	C_L.phys.bio_first[l] <- C_L + dC_L
+  	C_D.phys.bio_first[l] <- C_D + dC_D
+  	M_S.phys.bio_first[l] <- M_S + dM_S
+  	M_C.phys.bio_first[l] <- M_C + dM_C
+    }
+    
+     else {
+        dt <- tset_phys.bio_first[l] - tset_phys.bio_first[l-1] # change in time
+    
+    # use variable assignment to create objects to plug into calculations 
+  	C_L <- C_L.phys.bio_first[l-1]*(1-disturbance_severity)
+  	C_D <- C_D.phys.bio_first[l-1] + (C_L.phys.bio_first[l-1]-C_L)
+    M_S <- M_S.phys.bio_first[l-1]
+  	M_C <- M_C.phys.bio_first[l-1]
+  	
+  	# calculate change in proportional cover at each timestep
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e))
+  	
+  	
+  	# calculate the proportional cover at each timestep
+  	C_L.phys.bio_first[l] <- C_L + dC_L
+  	C_D.phys.bio_first[l] <- C_D + dC_D
+  	M_S.phys.bio_first[l] <- M_S + dM_S
+  	M_C.phys.bio_first[l] <- M_C + dM_C
+     }
+  }
+# final output is maximum cover for a given severity of disturbance
+C_L.phys.eq_cover.bio_first[k] <- C_L.phys.bio_first[880]
+C_D.phys.eq_cover.bio_first[k] <- C_D.phys.bio_first[880]
+M_S.phys.eq_cover.bio_first[k] <- M_S.phys.bio_first[880]
+M_C.phys.eq_cover.bio_first[k] <- M_C.phys.bio_first[880]
+}
+
+```
+
+```{r Equilibrium cover plots, echo=FALSE}
+
+# Live coral
+plot(disturb_set, C_L.bio.eq_cover.phys_first, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
+lines(disturb_set, C_L.phys.eq_cover.bio_first, col = "red", lwd = 2, lty = 'solid', type = 'l')
+#legend(x=0.6,y=1.1,legend=c('Structure-removing disturbance','Structure-retaining disturbance','10-year frequency','5-year frequency'),lwd=1,lty=c('solid','solid','dotted','dotted'),col=c('blue','red', 'black','black'))
+
+# Total macroalgae
+plot(disturb_set, c(M_C.phys.eq_cover.phys_first + M_S.phys.eq_cover.phys_first), col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Total macroalgae")
+lines(disturb_set, c(M_C.bio.eq_cover.phys_first + M_S.bio.eq_cover.phys_first), col = "red", lwd = 2, lty = 'solid', type = 'l')
+#legend(x=0.6,y=1.1,legend=c('Structure-removing','Structure-retaining'), lwd=1, lty='solid', col=c('blue','red'))
+
 ```
