@@ -7,6 +7,11 @@ output:
   pdf_document: default
   word_document: default
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 ### The model
 #### State Variables for proportional cover of benthic space holders
 $$
@@ -55,10 +60,6 @@ $$
 &h_{mc}\ =\ herbivory\ rate\ of\ macroalgae\ on\ dead\ coral\\
 &\end{align}
 $$
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ```{r Parameter values (per year), echo = FALSE}
 # Set parameter values
@@ -187,7 +188,7 @@ lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
 ```
 
 50% structure-retaining disturbances every ten years
-```{r 50% structure-retaining ten year frequency , echo = FALSE}
+```{r 50% structure-retaining fifteen year frequency , echo = FALSE}
 
 # Create time vector, holding vectors for each state variable, and set initial conditions
 tset_bio_dist <- seq(from = 0, to = 1200)
@@ -1928,8 +1929,8 @@ abline(v=225, lty = 'dashed', col = "red")
 
 #### Different sequences equilibrium cover
 
-Structure removing first
-```{r Equilibrium cover structure-removing first, echo=FALSE}
+Structure removing first, ten years apart
+```{r Equilibrium cover structure-removing first ten years, echo=FALSE}
 
 tset_phys.phys_first <- seq(from = 0, to = 319)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2012,7 +2013,7 @@ M_C.phys.eq_cover.phys_first[j] <- M_C.phys.phys_first[max(tset_phys.phys_first)
 
 ```
 
-```{r Equilibrium cover structure-retaining second, echo=FALSE}
+```{r Equilibrium cover structure-retaining second ten years, echo=FALSE}
 
 tset_bio.phys_first <- seq(from = 319, to = 1200)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2095,8 +2096,8 @@ M_C.bio.eq_cover.phys_first[k] <- M_C.bio.phys_first[880]
 
 ```
 
-Structure-retaining first
-```{r Equilibrium cover structure-retaining first, echo=FALSE}
+Structure-retaining first, ten years apart
+```{r Equilibrium cover structure-retaining first ten years, echo=FALSE}
 
 tset_bio.bio_first <- seq(from = 0, to = 319)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2179,7 +2180,7 @@ M_C.bio.eq_cover.bio_first[j] <- M_C.bio.bio_first[max(tset_bio.bio_first)]
 
 ```
 
-```{r Equilibrium cover structure-removing second, echo=FALSE}
+```{r Equilibrium cover structure-removing second ten years, echo=FALSE}
 
 tset_phys.bio_first <- seq(from = 319, to = 1200)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2262,7 +2263,7 @@ M_C.phys.eq_cover.bio_first[k] <- M_C.phys.bio_first[880]
 
 ```
 
-```{r Equilibrium cover plots, echo=FALSE}
+```{r Equilibrium cover plots structure removing second ten years, echo=FALSE}
 
 # Live coral
 plot(disturb_set, C_L.bio.eq_cover.phys_first, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
@@ -2276,8 +2277,8 @@ lines(disturb_set, c(M_C.bio.eq_cover.phys_first + M_S.bio.eq_cover.phys_first),
 
 ```
 
-Five years apart
-```{r Equilibrium cover structure-removing first, echo=FALSE}
+Structure removing first, five years apart
+```{r Equilibrium cover structure-removing first five years, echo=FALSE}
 
 tset_phys.phys_first <- seq(from = 0, to = 259)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2360,7 +2361,7 @@ M_C.phys.eq_cover.phys_first[j] <- M_C.phys.phys_first[max(tset_phys.phys_first)
 
 ```
 
-```{r Equilibrium cover structure-retaining second, echo=FALSE}
+```{r Equilibrium cover structure-retaining second five years, echo=FALSE}
 
 tset_bio.phys_first <- seq(from = 259, to = 1200)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2443,8 +2444,8 @@ M_C.bio.eq_cover.phys_first[k] <- M_C.bio.phys_first[880]
 
 ```
 
-Structure retaining first
-```{r Equilibrium cover structure-retaining first, echo=FALSE}
+Structure retaining first, five years apart
+```{r Equilibrium cover structure-retaining first five years, echo=FALSE}
 
 tset_bio.bio_first <- seq(from = 0, to = 259)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2527,7 +2528,7 @@ M_C.bio.eq_cover.bio_first[j] <- M_C.bio.bio_first[max(tset_bio.bio_first)]
 
 ```
 
-```{r Equilibrium cover structure-removing second, echo=FALSE}
+```{r Equilibrium cover structure-removing second five years, echo=FALSE}
 
 tset_phys.bio_first <- seq(from = 259, to = 1200)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2610,7 +2611,7 @@ M_C.phys.eq_cover.bio_first[k] <- M_C.phys.bio_first[880]
 
 ```
 
-```{r Equilibrium cover plots, echo=FALSE}
+```{r Equilibrium cover plots five years, echo=FALSE}
 
 # Live coral
 plot(disturb_set, C_L.bio.eq_cover.phys_first, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
@@ -2625,7 +2626,7 @@ lines(disturb_set, c(M_C.bio.eq_cover.phys_first + M_S.bio.eq_cover.phys_first),
 ```
 
 #### Fifteen years apart
-```{r Equilibrium cover structure-removing first, echo=FALSE}
+```{r Equilibrium cover structure-removing first 15 years, echo=FALSE}
 
 tset_phys.phys_first <- seq(from = 0, to = 379)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2708,7 +2709,7 @@ M_C.phys.eq_cover.phys_first[j] <- M_C.phys.phys_first[max(tset_phys.phys_first)
 
 ```
 
-```{r Equilibrium cover structure-retaining second, echo=FALSE}
+```{r Equilibrium cover structure-retaining second 15 years, echo=FALSE}
 
 tset_bio.phys_first <- seq(from = 379, to = 1200)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2792,7 +2793,7 @@ M_C.bio.eq_cover.phys_first[k] <- M_C.bio.phys_first[880]
 ```
 
 Structure retaining first
-```{r Equilibrium cover structure-retaining first, echo=FALSE}
+```{r Equilibrium cover structure-retaining first 15 years, echo=FALSE}
 
 tset_bio.bio_first <- seq(from = 0, to = 379)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2875,7 +2876,7 @@ M_C.bio.eq_cover.bio_first[j] <- M_C.bio.bio_first[max(tset_bio.bio_first)]
 
 ```
 
-```{r Equilibrium cover structure-removing second, echo=FALSE}
+```{r Equilibrium cover structure-removing second 15 years, echo=FALSE}
 
 tset_phys.bio_first <- seq(from = 379, to = 1200)
 # create holding vectors for equilibration time following disturbance for all space holders
@@ -2958,7 +2959,7 @@ M_C.phys.eq_cover.bio_first[k] <- M_C.phys.bio_first[880]
 
 ```
 
-```{r Equilibrium cover plots, echo=FALSE}
+```{r Equilibrium cover plots 15 years, echo=FALSE}
 
 # Live coral
 plot(disturb_set, C_L.bio.eq_cover.phys_first, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral")
