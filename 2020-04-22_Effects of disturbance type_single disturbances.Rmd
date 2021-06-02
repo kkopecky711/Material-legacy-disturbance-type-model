@@ -66,10 +66,20 @@ gamma_C <- 0.001
 g_M <- 0.6
 g_M_C_L <- 0.06
 d_M <- 0.05
-h_M_S <- 0.3
-h_M_C <- 0.15
+h_M_S <- 0.2
+h_M_C <- 0.2
 gamma_M <- 0.001
 e <- 0.01
+
+# Values from Briggs et al. 2018
+#g_C <- 0.1
+#d_C <- 0.05
+#gamma_C <- 0.001
+#g_M <- 0.4
+#g_M_C_L <- 0.4
+#gamma_M <- 0.0001
+#d_M <- 0.1
+
 
 t_disturb <- 500
 disturb_set <- seq(from = 0, to = 1, by = .01) # Time vector for outer loop
@@ -143,11 +153,13 @@ plot(tset_phys_dist, C_L.simu_phys, col = "blue", lwd = 1, lty = 'solid', type =
 lines(tset_phys_dist, C_D.simu_phys, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_S.simu_phys, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
-#legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae (dead coral)'),lwd=1,lty='solid',col=c('blue','black','green','grey'))
+legend(x=450,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae (dead coral)'),lwd=1,lty='solid',col=c('blue','black','green','grey'))
 abline(v=500, lty = 'dashed')
 #abline(v=220, lty = 'dashed')
 #abline(v=340, lty = 'dashed')
 #abline(v=460, lty = 'dashed')
+
+#which(round(C_L.simu_phys[(t_disturb+1):length(tset.disturb)], 2) == round(C_L.simu_phys[499], 2))[1]
 ```
 
 One 50% structure-retaining disturbance; beginning community state = coral dominance
@@ -539,7 +551,7 @@ M_C.bio.eq_cover.single.coral_state[j] <- M_C.bio.single.coral_state[max(tset.di
 
 ```
 
-Initial community state= macroalgae-dominated 
+Initial community state = macroalgae-dominated 
 ```{r Equilibrium cover structure-removing single event macroalgal-dominated, echo=FALSE}
 ## Structure-removing disturbances
 
@@ -559,7 +571,7 @@ for(j in 1:length(disturb_set)){
 	C_L.phys.single.algae_state <- NaN*tset.disturb 
 	C_L.phys.single.algae_state[1] <- 0.1
 	C_D.phys.single.algae_state <- NaN*tset.disturb 
-	C_D.phys.single.algae_state[1] <- 0
+	C_D.phys.single.algae_state[1] <- 0.19
 	M_S.phys.single.algae_state <- NaN*tset.disturb 
 	M_S.phys.single.algae_state[1] <- 0.18
 	M_C.phys.single.algae_state <- NaN*tset.disturb 
@@ -640,7 +652,7 @@ for(j in 1:length(disturb_set)){
 	C_L.bio.single.algae_state <- NaN*tset.disturb 
 	C_L.bio.single.algae_state[1] <- 0.1
 	C_D.bio.single.algae_state <- NaN*tset.disturb 
-	C_D.bio.single.algae_state[1] <- 0
+	C_D.bio.single.algae_state[1] <- 0.19
 	M_S.bio.single.algae_state <- NaN*tset.disturb 
 	M_S.bio.single.algae_state[1] <- 0.18
 	M_C.bio.single.algae_state <- NaN*tset.disturb 
@@ -737,15 +749,21 @@ Equilibrium cover plots
 # Coral and macroalgae XX months after disturbance events of each type, starting from coral-dominated state
 plot(disturb_set, C_L.phys.eq_cover.single.coral_state, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral and total macroalgae by disturbance type, coral state")
 lines(disturb_set, C_L.bio.eq_cover.single.coral_state, col = "blue", lwd = 2, lty = 'dashed', type = 'l')
-lines(disturb_set, c(M_C.phys.eq_cover.single.coral_state + M_S.phys.eq_cover.single.coral_state), col = "brown", lwd = 2, lty = 'solid', type = 'l')
-lines(disturb_set, c(M_C.bio.eq_cover.single.coral_state + M_S.bio.eq_cover.single.coral_state), col = "brown", lwd = 2, lty = 'dashed', type = 'l')
+lines(disturb_set, c(M_C.phys.eq_cover.single.coral_state + M_S.phys.eq_cover.single.coral_state), col = "green", lwd = 2, lty = 'solid', type = 'l')
+lines(disturb_set, c(M_C.bio.eq_cover.single.coral_state + M_S.bio.eq_cover.single.coral_state), col = "green", lwd = 2, lty = 'dashed', type = 'l')
+legend(x=0.6,y=1.1,legend=c('Live coral','Total macroalgae', 'Structure-removing', 'Structure-retaining'), lwd=1,lty=c('solid','solid','solid','dashed'),col=c('blue','green', 'black','black'))
 
 # Coral and macroalgae XX months after disturbance events of each type, starting from algae-dominated state
 plot(disturb_set, C_L.phys.eq_cover.single.algae_state, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral and total macroalgae by disturbance type, algae state")
 lines(disturb_set, C_L.bio.eq_cover.single.algae_state, col = "blue", lwd = 2, lty = 'dashed', type = 'l')
-lines(disturb_set, c(M_C.phys.eq_cover.single.algae_state + M_S.phys.eq_cover.single.algae_state), col = "brown", lwd = 2, lty = 'solid', type = 'l')
-lines(disturb_set, c(M_C.bio.eq_cover.single.algae_state + M_S.bio.eq_cover.single.algae_state), col = "brown", lwd = 2, lty = 'dashed', type = 'l')
+lines(disturb_set, c(M_C.phys.eq_cover.single.algae_state + M_S.phys.eq_cover.single.algae_state), col = "green", lwd = 2, lty = 'solid', type = 'l')
+lines(disturb_set, c(M_C.bio.eq_cover.single.algae_state + M_S.bio.eq_cover.single.algae_state), col = "green", lwd = 2, lty = 'dashed', type = 'l')
 
+#hist(C_L.bio.eq_cover.single.coral_state, breaks = 100)
+#hist(c(M_C.bio.eq_cover.single.algae_state + M_S.bio.eq_cover.single.algae_state), breaks = 100)
+
+plot(disturb_set, C_D.phys.eq_cover.single.coral_state, col = "black", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral and total macroalgae by disturbance type, coral state")
+lines(disturb_set, C_D.bio.eq_cover.single.coral_state, col = "black", lwd = 2, lty = 'dashed', type = 'l')
 
 #which(round(c(M_C.bio.eq_cover.single.coral_state + M_S.bio.eq_cover.single.coral_state)[disturb_set:length(disturb_set)], 2) == round(C_L.bio.eq_cover.single.coral_state[disturb_set:length(disturb_set)], 2)[1])
 ```
@@ -830,12 +848,17 @@ for(j in 1:length(disturb_set.t_eq)){
   	M_C.bio[i] <- M_C + dM_C
   	
   	tot.dt.bio[i] <- abs(dC_L/(dt/5))+abs(dC_D/(dt/5))+abs(dM_S/(dt/5))+abs(dM_C/(dt/5))
+  	
+  	#pre_disturb_C_L[j] <- which(round(C_L.bio[(t_disturb+1):length(tset.disturb)], 2) == round(C_L.bio[499], 2))
     }
   }
 	
 # final output is time to equilibrium for a given severity of disturbance
 system_equilibration.bio[j] <- which(round(tot.dt.bio[(t_disturb+1):length(tset.disturb)], 5) == 0)[1]
 
+#pre_disturb_C_L[j] <- which(round(C_L.bio[(t_disturb+1):length(tset.disturb)], 2) == round(C_L.bio[499], 2))[1]
+
+#time_pre_disturb_level.C_L[j] <- which(tset.disturb(t_disturb+1):length(tset.disturb))pre_disturb_level.C_L[1]
 }
 
 ```
@@ -931,8 +954,8 @@ system_equilibration.phys[j] <- which(round(tot.dt.phys[(t_disturb+1):length(tse
 
 ```{r Time to equilibrium plot, echo=FALSE}
 
-plot(disturb_set.t_eq,system_equilibration.bio, col = "red", lwd = 2, lty = 'dashed', type = 'l', xlab = "Severity of disturbance", ylab = "Time to equilibrium (months)", ylim = c(0,4500))
-lines(disturb_set.t_eq,system_equilibration.phys,col = "red", lwd = 2, lty = 'solid', type = 'l')
+plot(disturb_set.t_eq,system_equilibration.bio, col = "black", lwd = 2, lty = 'dashed', type = 'l', xlab = "Severity of disturbance", ylab = "Time to equilibrium (months)", ylim = c(0,4500))
+lines(disturb_set.t_eq,system_equilibration.phys,col = "black", lwd = 2, lty = 'solid', type = 'l')
 #legend(x=.6,y=500,legend=c('Structure-removing', 'Structure-retaining', 'Reduced herbivory'),lwd=1,lty=c('solid', 'solid', 'dashed'),col=c('blue','red','black'))
 
 mean(system_equilibration.bio[1:31] - system_equilibration.phys[1:31])
@@ -986,10 +1009,10 @@ for(i in 2:length(tset_phys_dist.ten_year)){ # For every element after the first
       dt <- tset_phys_dist.ten_year[i] - tset_phys_dist.ten_year[i-1]
 
   # reduce all space holders to 50% of their pre-disturbance levels
-  C_L <- C_L.simu_phys.ten_year[i-1]*0.6
-  C_D <- C_D.simu_phys.ten_year[i-1]*0.6
-  M_S <- M_S.simu_phys.ten_year[i-1]*0.6
-  M_C <- M_C.simu_phys.ten_year[i-1]*0.6
+  C_L <- C_L.simu_phys.ten_year[i-1]*0.5
+  C_D <- C_D.simu_phys.ten_year[i-1]*0.5
+  M_S <- M_S.simu_phys.ten_year[i-1]*0.5
+  M_C <- M_C.simu_phys.ten_year[i-1]*0.5
   
   dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
   dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
@@ -1183,10 +1206,10 @@ for(i in 2:length(tset_phys_dist.ten_year)){ # For every element after the first
       dt <- tset_phys_dist.ten_year[i] - tset_phys_dist.ten_year[i-1]
 
   # reduce all space holders to 50% of their pre-disturbance levels
-  C_L <- C_L.simu_phys.ten_year[i-1]*0.6
-  C_D <- C_D.simu_phys.ten_year[i-1]*0.6
-  M_S <- M_S.simu_phys.ten_year[i-1]*0.6
-  M_C <- M_C.simu_phys.ten_year[i-1]*0.6
+  C_L <- C_L.simu_phys.ten_year[i-1]*0.5
+  C_D <- C_D.simu_phys.ten_year[i-1]*0.5
+  M_S <- M_S.simu_phys.ten_year[i-1]*0.5
+  M_C <- M_C.simu_phys.ten_year[i-1]*0.5
   
   dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
   dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
