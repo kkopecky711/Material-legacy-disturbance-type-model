@@ -1712,21 +1712,24 @@ M_C.bio.eq_cover.single.coral_state[j] <- M_C.bio.single.coral_state[max(tset.di
 
 ```{r Erosion rate bifurcation diagram, echo = FALSE}
 
+## Coral-dominated state
 # Create time vector, holding vectors for each state variable, and set initial conditions
-tset.e_rate <- seq(from = 0, to = 6000)
-e_set <- seq(from = 0, to = 0.2, by = 0.01)
+tset.e_rate <- seq(from = 0, to = 20000)
+e_set <- seq(from = 0, to = 0.02, by = 0.001)
 
-C_L.eq_cover.e_rate <- NaN*e_set
-C_D.eq_cover.e_rate <- NaN*e_set
-M_S.eq_cover.e_rate <- NaN*e_set
-M_C.eq_cover.e_rate <- NaN*e_set
+C_L.eq_cover.e_rate.coral_state <- NaN*e_set
+C_D.eq_cover.e_rate.coral_state <- NaN*e_set
+M_S.eq_cover.e_rate.coral_state <- NaN*e_set
+M_C.eq_cover.e_rate.coral_state <- NaN*e_set
 
 for(j in 1:length(e_set)){
-
-  C_L.simu.e_rate <- NaN*tset.e_rate; C_L.simu.e_rate[1] <- 0.6
-  C_D.simu.e_rate <- NaN*tset.e_rate; C_D.simu.e_rate[1] <- 0
-  M_S.simu.e_rate <- NaN*tset.e_rate; M_S.simu.e_rate[1] <- 0.05
-  M_C.simu.e_rate <- NaN*tset.e_rate; M_C.simu.e_rate[1] <- 0.05
+  
+  e_rate <- e_set[j]
+  
+  C_L.simu.e_rate.coral_state <- NaN*tset.e_rate; C_L.simu.e_rate.coral_state[1] <- 0.6
+  C_D.simu.e_rate.coral_state <- NaN*tset.e_rate; C_D.simu.e_rate.coral_state[1] <- 0
+  M_S.simu.e_rate.coral_state <- NaN*tset.e_rate; M_S.simu.e_rate.coral_state[1] <- 0.05
+  M_C.simu.e_rate.coral_state <- NaN*tset.e_rate; M_C.simu.e_rate.coral_state[1] <- 0.05
   
   
   for(i in 2:length(tset.e_rate)){ # For every element after the first in the time vector...
@@ -1734,33 +1737,160 @@ for(j in 1:length(e_set)){
     dt <- tset.e_rate[i] - tset.e_rate[i-1] # calculate change in time  
    
     # Proportional cover at previous time step  
-    C_L <- C_L.simu.e_rate[i-1]
-    C_D <- C_D.simu.e_rate[i-1]
-    M_S <- M_S.simu.e_rate[i-1]
-    M_C <- M_C.simu.e_rate[i-1]
+    C_L <- C_L.simu.e_rate.coral_state[i-1]
+    C_D <- C_D.simu.e_rate.coral_state[i-1]
+    M_S <- M_S.simu.e_rate.coral_state[i-1]
+    M_C <- M_C.simu.e_rate.coral_state[i-1]
     
     # Change in proportional cover, converted to units of months (/5)
     dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e_set*C_D)
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e_rate*C_D)
     dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e_set))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e_rate))
    
     # Proportional cover at new time step   
-    C_L.simu.e_rate[i] <- C_L.simu.e_rate[i-1] + dC_L
-    C_D.simu.e_rate[i] <- C_D.simu.e_rate[i-1] + dC_D
-    M_S.simu.e_rate[i] <- M_S.simu.e_rate[i-1] + dM_S
-    M_C.simu.e_rate[i] <- M_C.simu.e_rate[i-1] + dM_C
+    C_L.simu.e_rate.coral_state[i] <- C_L.simu.e_rate.coral_state[i-1] + dC_L
+    C_D.simu.e_rate.coral_state[i] <- C_D.simu.e_rate.coral_state[i-1] + dC_D
+    M_S.simu.e_rate.coral_state[i] <- M_S.simu.e_rate.coral_state[i-1] + dM_S
+    M_C.simu.e_rate.coral_state[i] <- M_C.simu.e_rate.coral_state[i-1] + dM_C
   }
   
-  C_L.eq_cover.e_rate[j] <- C_L.simu.e_rate[max(tset.e_rate)]
-  C_D.eq_cover.e_rate[j] <- C_D.simu.e_rate[max(tset.e_rate)]
-  M_S.eq_cover.e_rate[j] <- M_S.simu.e_rate[max(tset.e_rate)]
-  M_C.eq_cover.e_rate[j] <- M_C.simu.e_rate[max(tset.e_rate)]
+  C_L.eq_cover.e_rate.coral_state[j] <- C_L.simu.e_rate.coral_state[max(tset.e_rate)]
+  C_D.eq_cover.e_rate.coral_state[j] <- C_D.simu.e_rate.coral_state[max(tset.e_rate)]
+  M_S.eq_cover.e_rate.coral_state[j] <- M_S.simu.e_rate.coral_state[max(tset.e_rate)]
+  M_C.eq_cover.e_rate.coral_state[j] <- M_C.simu.e_rate.coral_state[max(tset.e_rate)]
+}
+
+
+## Macroalgae-dominated state
+# Create time vector, holding vectors for each state variable, and set initial conditions
+tset.e_rate <- seq(from = 0, to = 20000)
+e_set <- seq(from = 0, to = 0.02, by = 0.001)
+
+C_L.eq_cover.e_rate.algal_state <- NaN*e_set
+C_D.eq_cover.e_rate.algal_state <- NaN*e_set
+M_S.eq_cover.e_rate.algal_state <- NaN*e_set
+M_C.eq_cover.e_rate.algal_state <- NaN*e_set
+
+for(j in 1:length(e_set)){
+  
+  e_rate <- e_set[j]
+  
+  C_L.simu.e_rate.algal_state <- NaN*tset.e_rate; C_L.simu.e_rate.algal_state[1] <- 0.01
+  C_D.simu.e_rate.algal_state <- NaN*tset.e_rate; C_D.simu.e_rate.algal_state[1] <- 0.23
+  M_S.simu.e_rate.algal_state <- NaN*tset.e_rate; M_S.simu.e_rate.algal_state[1] <- 0.19
+  M_C.simu.e_rate.algal_state <- NaN*tset.e_rate; M_C.simu.e_rate.algal_state[1] <- 0.39
+  
+  
+  for(i in 2:length(tset.e_rate)){ # For every element after the first in the time vector...
+    
+    dt <- tset.e_rate[i] - tset.e_rate[i-1] # calculate change in time  
+   
+    # Proportional cover at previous time step  
+    C_L <- C_L.simu.e_rate.algal_state[i-1]
+    C_D <- C_D.simu.e_rate.algal_state[i-1]
+    M_S <- M_S.simu.e_rate.algal_state[i-1]
+    M_C <- M_C.simu.e_rate.algal_state[i-1]
+    
+    # Change in proportional cover, converted to units of months (/5)
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e_rate*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e_rate))
+   
+    # Proportional cover at new time step   
+    C_L.simu.e_rate.algal_state[i] <- C_L.simu.e_rate.algal_state[i-1] + dC_L
+    C_D.simu.e_rate.algal_state[i] <- C_D.simu.e_rate.algal_state[i-1] + dC_D
+    M_S.simu.e_rate.algal_state[i] <- M_S.simu.e_rate.algal_state[i-1] + dM_S
+    M_C.simu.e_rate.algal_state[i] <- M_C.simu.e_rate.algal_state[i-1] + dM_C
+  }
+  
+  C_L.eq_cover.e_rate.algal_state[j] <- C_L.simu.e_rate.algal_state[max(tset.e_rate)]
+  C_D.eq_cover.e_rate.algal_state[j] <- C_D.simu.e_rate.algal_state[max(tset.e_rate)]
+  M_S.eq_cover.e_rate.algal_state[j] <- M_S.simu.e_rate.algal_state[max(tset.e_rate)]
+  M_C.eq_cover.e_rate.algal_state[j] <- M_C.simu.e_rate.algal_state[max(tset.e_rate)]
+}
+
+
+## Plot bifurcation diagrams
+# Coral-dominated state, all space holders
+plot(e_set, C_L.eq_cover.e_rate.coral_state, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Erosion rate", ylab = "Equilibrium cover", xlim = c(0, max(e_set)), ylim = c(0, 1), main = "Coral-dominated state")
+lines(e_set, (M_S.eq_cover.e_rate.coral_state + M_C.eq_cover.e_rate.coral_state), col = "green", lwd = 2, lty = 'solid', type = 'l')
+lines(e_set, C_D.eq_cover.e_rate.coral_state, col = "black", lwd = 2, lty = 'solid', type = 'l')
+legend(x=0.01, y=0.6,legend=c('Live coral','Dead coral', 'Total macroalgae'), col = c("blue", "black", "green"), lty = c('solid', 'solid'))
+
+# Macroalgae-dominated state, all space holders
+plot(e_set, C_L.eq_cover.e_rate.algal_state, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Erosion rate", ylab = "Equilibrium cover", xlim = c(0, max(e_set)), ylim = c(0, 1), main = "Macroalgae-dominated state")
+lines(e_set, (M_S.eq_cover.e_rate.algal_state + M_C.eq_cover.e_rate.algal_state), col = "green", lwd = 2, lty = 'solid', type = 'l')
+lines(e_set, C_D.eq_cover.e_rate.algal_state, col = "black", lwd = 2, lty = 'solid', type = 'l')
+legend(x=0.01, y=0.6,legend=c('Live coral','Dead coral', 'Total macroalgae'), col = c("blue", "black", "green"), lty = c('solid', 'solid'))
+
+# Live coral, both states
+plot(e_set, C_L.eq_cover.e_rate.coral_state, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Erosion rate", ylab = "Equilibrium coral cover", xlim = c(0, max(e_set)), ylim = c(0, 1), main = "Live coral")
+lines(e_set, C_L.eq_cover.e_rate.algal_state, col = "blue", lwd = 2, lty = 'dashed', type = 'l')
+legend(x=-0.0005, y=1,legend=c('Coral-dominated','Algae-dominated'), col = "blue", lty = c('solid', 'dashed'), title = "Initial community state", box.lty=0)
+
+# Total macroalgae, both states
+plot(e_set, (M_S.eq_cover.e_rate.coral_state + M_C.eq_cover.e_rate.coral_state), col = "green", lwd = 2, lty = 'solid', type = 'l', xlab = "Erosion rate", ylab = "Equilibrium algae cover", xlim = c(0, max(e_set)), ylim = c(0, 1), main = "Total macroalgae")
+lines(e_set, (M_S.eq_cover.e_rate.algal_state + M_C.eq_cover.e_rate.algal_state), col = "green", lwd = 2, lty = 'dashed', type = 'l')
+legend(x=0.0135, y=1,legend=c('Coral-dominated','Algae-dominated'), col = "green", lty = c('solid', 'dashed'), title = "Initial community state", box.lty=0)
+```
+
+```{r Herbivory rate bifurcation diagram, echo = FALSE}
+
+# Create time vector, holding vectors for each state variable, and set initial conditions
+tset.herb_rate <- seq(from = 0, to = 20000)
+herb_set <- seq(from = 0, to = 0.3, by = 0.01)
+
+C_L.eq_cover.herb_rate <- NaN*herb_set
+C_D.eq_cover.herb_rate <- NaN*herb_set
+M_S.eq_cover.herb_rate <- NaN*herb_set
+M_C.eq_cover.herb_rate <- NaN*herb_set
+
+for(j in 1:length(herb_set)){
+  
+  herb_rate <- herb_set[j]
+  
+  C_L.simu.herb_rate <- NaN*tset.herb_rate; C_L.simu.herb_rate[1] <- 0.6
+  C_D.simu.herb_rate <- NaN*tset.herb_rate; C_D.simu.herb_rate[1] <- 0
+  M_S.simu.herb_rate <- NaN*tset.herb_rate; M_S.simu.herb_rate[1] <- 0.05
+  M_C.simu.herb_rate <- NaN*tset.herb_rate; M_C.simu.herb_rate[1] <- 0.05
+  
+  
+  for(i in 2:length(tset.herb_rate)){ # For every element after the first in the time vector...
+    
+    dt <- tset.herb_rate[i] - tset.herb_rate[i-1] # calculate change in time  
+   
+    # Proportional cover at previous time step  
+    C_L <- C_L.simu.herb_rate[i-1]
+    C_D <- C_D.simu.herb_rate[i-1]
+    M_S <- M_S.simu.herb_rate[i-1]
+    M_C <- M_C.simu.herb_rate[i-1]
+    
+    # Change in proportional cover, converted to units of months (/5)
+    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
+    dC_D <- (dt/5)*(d_C*C_L + M_C*(herb_rate + d_M) - g_M*C_D*(M_S + M_C) - e*C_D)
+    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
+    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(herb_rate + d_M + e))
+   
+    # Proportional cover at new time step   
+    C_L.simu.herb_rate[i] <- C_L.simu.herb_rate[i-1] + dC_L
+    C_D.simu.herb_rate[i] <- C_D.simu.herb_rate[i-1] + dC_D
+    M_S.simu.herb_rate[i] <- M_S.simu.herb_rate[i-1] + dM_S
+    M_C.simu.herb_rate[i] <- M_C.simu.herb_rate[i-1] + dM_C
+  }
+  
+  C_L.eq_cover.herb_rate[j] <- C_L.simu.herb_rate[max(tset.herb_rate)]
+  C_D.eq_cover.herb_rate[j] <- C_D.simu.herb_rate[max(tset.herb_rate)]
+  M_S.eq_cover.herb_rate[j] <- M_S.simu.herb_rate[max(tset.herb_rate)]
+  M_C.eq_cover.herb_rate[j] <- M_C.simu.herb_rate[max(tset.herb_rate)]
 }
 
 
 # Plot of time series
-plot(e_set, C_L.eq_cover.e_rate, col = "black", lwd = 1, lty = 'solid', type = 'l', xlab = "Erosion rate", ylab = "Equilibrium coral cover", xlim = c(0, max(e_set)), ylim = c(0, 1))
+plot(herb_set, C_L.eq_cover.herb_rate, col = "blue", lwd = 2, lty = 'solid', type = 'l', xlab = "Herbivory rate (h_m_c)", ylab = "Equilibrium cover", xlim = c(0, max(herb_set)), ylim = c(0, 1))
+lines(herb_set, (M_S.eq_cover.herb_rate + M_C.eq_cover.herb_rate), col = "green", lwd = 2, lty = 'solid', type = 'l')
+legend(x=0.2, y=0.6,legend=c('Coral','Total macroalgae'), col = c("blue", "green"), lty = c('solid', 'solid'))
 
 
 ```
