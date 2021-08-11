@@ -89,7 +89,7 @@ e <- 0.01
 #d_M <- 0.1
 
 
-t_disturb <- 1000
+t_disturb <- 500
 disturb_set <- seq(from = 0, to = 1, by = .01) # Time vector for outer loop
 tset.disturb <- seq(from = 0, to = 6000) # Time vector for inner loop
 ```
@@ -100,7 +100,7 @@ One 50% structure-removing disturbance; beginning community state = coral domina
 ```{r Structure-removing disturbance single event coral state, echo = FALSE}
 
 # Create time vector, holding vectors for each state variable, and set initial conditions
-tset_phys_dist <- seq(from = 0, to = 6000)
+tset_phys_dist <- seq(from = 0, to = 4000)
 C_L.simu_phys <- NaN*tset_phys_dist; C_L.simu_phys[1] <- 0.6
 C_D.simu_phys <- NaN*tset_phys_dist; C_D.simu_phys[1] <- 0
 M_S.simu_phys <- NaN*tset_phys_dist; M_S.simu_phys[1] <- 0.05
@@ -162,7 +162,7 @@ lines(tset_phys_dist, C_D.simu_phys, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_S.simu_phys, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
 legend(x=450,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae (dead coral)'),lwd=1,lty='solid',col=c('blue','black','green','grey'))
-abline(v=1000, lty = 'dashed')
+abline(v=500, lty = 'dashed')
 #abline(v=220, lty = 'dashed')
 #abline(v=340, lty = 'dashed')
 #abline(v=460, lty = 'dashed')
@@ -174,7 +174,7 @@ One 50% structure-retaining disturbance; beginning community state = coral domin
 ```{r Structure-retaining disturbance single event coral state, echo = FALSE}
 
 # Create time vector, holding vectors for each state variable, and set initial conditions
-tset_bio_dist <- seq(from = 0, to = 6000)
+tset_bio_dist <- seq(from = 0, to = 4000)
 C_L.bio <- NaN*tset_bio_dist; C_L.bio[1] <- 0.6
 C_D.bio <- NaN*tset_bio_dist; C_D.bio[1] <- 0
 M_S.bio <- NaN*tset_bio_dist; M_S.bio[1] <- 0.05
@@ -238,7 +238,7 @@ lines(tset_bio_dist, C_D.bio, col = "black", lwd = 1, lty = 'solid')
 lines(tset_bio_dist, M_S.bio, col = "green", lwd = 1, lty = 'solid')
 lines(tset_bio_dist, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
 #legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae  (dead coral)'), lwd=1, lty='solid', col=c('blue','black','green','grey'))
-abline(v=1000, lty = 'dashed')
+abline(v=500, lty = 'dashed')
 #abline(v=220, lty = 'dashed')
 #abline(v=340, lty = 'dashed')
 #abline(v=460, lty = 'dashed')
@@ -249,9 +249,9 @@ One 50% structure-removing disturbance; beginning community state = macroalgal d
 ```{r Structure-removing disturbance single event macroalgal state, echo = FALSE}
 
 # Create time vector, holding vectors for each state variable, and set initial conditions
-tset_phys_dist <- seq(from = 0, to = 6000)
+tset_phys_dist <- seq(from = 0, to = 4000)
 C_L.simu_phys <- NaN*tset_phys_dist; C_L.simu_phys[1] <- 0.1
-C_D.simu_phys <- NaN*tset_phys_dist; C_D.simu_phys[1] <- 0.19
+C_D.simu_phys <- NaN*tset_phys_dist; C_D.simu_phys[1] <- 0
 M_S.simu_phys <- NaN*tset_phys_dist; M_S.simu_phys[1] <- 0.18
 M_C.simu_phys <- NaN*tset_phys_dist; M_C.simu_phys[1] <- 0.28
 
@@ -311,7 +311,7 @@ lines(tset_phys_dist, C_D.simu_phys, col = "black", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_S.simu_phys, col = "green", lwd = 1, lty = 'solid')
 lines(tset_phys_dist, M_C.simu_phys, col = "grey", lwd = 1, lty = 'solid')
 #legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae (dead coral)'),lwd=1,lty='solid',col=c('blue','black','green','grey'))
-abline(v=1000, lty = 'dashed')
+abline(v=500, lty = 'dashed')
 #abline(v=220, lty = 'dashed')
 #abline(v=340, lty = 'dashed')
 #abline(v=460, lty = 'dashed')
@@ -321,9 +321,9 @@ One 50% structure-retaining disturbance; beginning community state = macroalgal 
 ```{r Structure-retaining disturbance single event macroalgal state, echo = FALSE}
 
 # Create time vector, holding vectors for each state variable, and set initial conditions
-tset_bio_dist <- seq(from = 0, to = 6000)
+tset_bio_dist <- seq(from = 0, to = 4000)
 C_L.bio <- NaN*tset_bio_dist; C_L.bio[1] <- 0.1
-C_D.bio <- NaN*tset_bio_dist; C_D.bio[1] <- 0.19
+C_D.bio <- NaN*tset_bio_dist; C_D.bio[1] <- 0
 M_S.bio <- NaN*tset_bio_dist; M_S.bio[1] <- 0.18
 M_C.bio <- NaN*tset_bio_dist; M_C.bio[1] <- 0.28
 
@@ -385,7 +385,7 @@ lines(tset_bio_dist, C_D.bio, col = "black", lwd = 1, lty = 'solid')
 lines(tset_bio_dist, M_S.bio, col = "green", lwd = 1, lty = 'solid')
 lines(tset_bio_dist, M_C.bio, col = "grey", lwd = 1, lty = 'solid')
 #legend(x=350,y=0.7,legend=c('Live coral','Dead coral','Macroalgae (open substrate)','Macroalgae  (dead coral)'), lwd=1, lty='solid', col=c('blue','black','green','grey'))
-abline(v=1000, lty = 'dashed')
+abline(v=500, lty = 'dashed')
 #abline(v=220, lty = 'dashed')
 #abline(v=340, lty = 'dashed')
 #abline(v=460, lty = 'dashed')
@@ -398,7 +398,7 @@ Initial community = coral-dominated state
 ```{r Equilibrium cover structure-removing single event coral-dominated, echo=FALSE}
 ## Structure-removing disturbances
 
-# create holding vectors for equilibrium cover following disturbance for all space holders
+# create holding vectors for equilibration time following disturbance for all space holders
 C_L.phys.eq_cover.single.coral_state <- NaN*disturb_set
 C_D.phys.eq_cover.single.coral_state <- NaN*disturb_set
 M_S.phys.eq_cover.single.coral_state <- NaN*disturb_set
@@ -770,29 +770,29 @@ lines(disturb_set, c(M_C.bio.eq_cover.single.algae_state + M_S.bio.eq_cover.sing
 #hist(C_L.bio.eq_cover.single.coral_state, breaks = 100)
 #hist(c(M_C.bio.eq_cover.single.algae_state + M_S.bio.eq_cover.single.algae_state), breaks = 100)
 
-plot(disturb_set, C_D.phys.eq_cover.single.coral_state, col = "black", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Dead coral by disturbance type, coral state")
+plot(disturb_set, C_D.phys.eq_cover.single.coral_state, col = "black", lwd = 2, lty = 'solid', type = 'l', xlab = "Severity of disturbance", ylab = "Equilibrium cover", xlim = c(0, 1), ylim = c(0, 1.1), main = "Live coral and total macroalgae by disturbance type, coral state")
 lines(disturb_set, C_D.bio.eq_cover.single.coral_state, col = "black", lwd = 2, lty = 'dashed', type = 'l')
 
 #which(round(c(M_C.bio.eq_cover.single.coral_state + M_S.bio.eq_cover.single.coral_state)[disturb_set:length(disturb_set)], 2) == round(C_L.bio.eq_cover.single.coral_state[disturb_set:length(disturb_set)], 2)[1])
 
 # Heat map attempts
-#disturb_set <- as.numeric(disturb_set)
-#C_L.bio.eq_cover.single.coral_state
+disturb_set <- as.numeric(disturb_set)
+C_L.bio.eq_cover.single.coral_state
 
-#library(tidyverse)
-#library(dplyr)
+library(tidyverse)
+library(dplyr)
 
-#live_coral_heatmap <- cbind(disturb_set, C_L.bio.eq_cover.single.coral_state)
+live_coral_heatmap <- cbind(disturb_set, C_L.bio.eq_cover.single.coral_state)
 
-#heatmap(live_coral_heatmap)
+heatmap(live_coral_heatmap)
 ```
 
 ### Time to reach equilibrium
 
 ```{r Time to equilibrium bio dist, echo=FALSE}
 #t_disturb.t_eq <- 2000
-disturb_set.t_eq <- seq(from = 0, to = 0.31, by = .01)#.01) # Time vector for outer loop
-tset.disturb <- seq(from = 0, to = 8000)#1500) # Time vector for inner loop
+disturb_set.t_eq <- seq(from = 0, to = 0.34, by = .01)#.01) # Time vector for outer loop
+tset.disturb <- seq(from = 0, to = 5000)#1500) # Time vector for inner loop
 
 # create holding vectors for equilibration time following disturbance for all space holders aggregated
 system_equilibration.bio <- NaN*disturb_set.t_eq
@@ -882,10 +882,10 @@ system_equilibration.bio[j] <- which(round(tot.dt.bio[(t_disturb+1):length(tset.
 
 ```
 
-```{r Time to equilibrium phys dist, echo=FALSE}
+```{r Time to equilibrium phys dist (half), echo=FALSE}
 #t_disturb.t_eq <- 2000#300
-disturb_set.t_eq <- seq(from = 0, to = 0.31, by = .01)#.01) # Time vector for outer loop
-tset.disturb <- seq(from = 0, to = 8000)#1500) # Time vector for inner loop
+disturb_set.t_eq <- seq(from = 0, to = 0.34, by = .01)#.01) # Time vector for outer loop
+tset.disturb <- seq(from = 0, to = 5000)#1500) # Time vector for inner loop
 
 # create holding vectors for equilibration time following disturbance for all space holders aggregated
 system_equilibration.phys <- NaN*disturb_set.t_eq
@@ -973,9 +973,9 @@ system_equilibration.phys[j] <- which(round(tot.dt.phys[(t_disturb+1):length(tse
 
 ```{r Time to equilibrium plot, echo=FALSE}
 
-plot(disturb_set.t_eq,system_equilibration.bio, col = "black", lwd = 2, lty = 'dashed', type = 'l', xlab = "Severity of disturbance", ylab = "Time to equilibrium (months)", ylim = c(0,5000))
+plot(disturb_set.t_eq,system_equilibration.bio, col = "black", lwd = 2, lty = 'dashed', type = 'l', xlab = "Severity of disturbance", ylab = "Time to equilibrium (months)", ylim = c(0,4500))
 lines(disturb_set.t_eq,system_equilibration.phys,col = "black", lwd = 2, lty = 'solid', type = 'l')
-legend(x=.2,y=1100,legend=c('Structure-retaining', 'Structure-removing'),lwd=1,lty=c('dashed', 'solid'),col=c('black', 'black'))
+#legend(x=.6,y=500,legend=c('Structure-removing', 'Structure-retaining', 'Reduced herbivory'),lwd=1,lty=c('solid', 'solid', 'dashed'),col=c('blue','red','black'))
 
 mean(system_equilibration.bio[1:31] - system_equilibration.phys[1:31])
 range(system_equilibration.bio[1:31] - system_equilibration.phys[1:31])
@@ -1706,61 +1706,6 @@ C_D.bio.eq_cover.single.coral_state[j] <- C_D.bio.single.coral_state[max(tset.di
 M_S.bio.eq_cover.single.coral_state[j] <- M_S.bio.single.coral_state[max(tset.disturb)]
 M_C.bio.eq_cover.single.coral_state[j] <- M_C.bio.single.coral_state[max(tset.disturb)]
 }
-
-
-```
-
-```{r Erosion rate bifurcation diagram, echo = FALSE}
-
-# Create time vector, holding vectors for each state variable, and set initial conditions
-tset.e_rate <- seq(from = 0, to = 6000)
-e_set <- seq(from = 0, to = 0.2, by = 0.01)
-
-C_L.eq_cover.e_rate <- NaN*e_set
-C_D.eq_cover.e_rate <- NaN*e_set
-M_S.eq_cover.e_rate <- NaN*e_set
-M_C.eq_cover.e_rate <- NaN*e_set
-
-for(j in 1:length(e_set)){
-
-  C_L.simu.e_rate <- NaN*tset.e_rate; C_L.simu.e_rate[1] <- 0.6
-  C_D.simu.e_rate <- NaN*tset.e_rate; C_D.simu.e_rate[1] <- 0
-  M_S.simu.e_rate <- NaN*tset.e_rate; M_S.simu.e_rate[1] <- 0.05
-  M_C.simu.e_rate <- NaN*tset.e_rate; M_C.simu.e_rate[1] <- 0.05
-  
-  
-  for(i in 2:length(tset.e_rate)){ # For every element after the first in the time vector...
-    
-    dt <- tset.e_rate[i] - tset.e_rate[i-1] # calculate change in time  
-   
-    # Proportional cover at previous time step  
-    C_L <- C_L.simu.e_rate[i-1]
-    C_D <- C_D.simu.e_rate[i-1]
-    M_S <- M_S.simu.e_rate[i-1]
-    M_C <- M_C.simu.e_rate[i-1]
-    
-    # Change in proportional cover, converted to units of months (/5)
-    dC_L <- (dt/5)*(g_C*C_L*(1-C_L-C_D-M_S-M_C) + gamma_C*(1-C_L-C_D-M_S-M_C) - g_M_C_L*C_L*(M_S + M_C) - d_C*C_L) 
-    dC_D <- (dt/5)*(d_C*C_L + M_C*(h_M_C + d_M) - g_M*C_D*(M_S + M_C) - e_set*C_D)
-    dM_S <- (dt/5)*(g_M*M_S*(1-C_L-C_D-M_S-M_C) + g_M*M_C*(1-C_L-C_D-M_S-M_C) + gamma_M*(1-C_L-C_D-M_S-M_C) - M_S*(h_M_S + d_M))
-    dM_C <- (dt/5)*(g_M*M_C*C_D + g_M*M_S*C_D + g_M_C_L*C_L*(M_S + M_C) + gamma_M*C_D - M_C*(h_M_C + d_M + e_set))
-   
-    # Proportional cover at new time step   
-    C_L.simu.e_rate[i] <- C_L.simu.e_rate[i-1] + dC_L
-    C_D.simu.e_rate[i] <- C_D.simu.e_rate[i-1] + dC_D
-    M_S.simu.e_rate[i] <- M_S.simu.e_rate[i-1] + dM_S
-    M_C.simu.e_rate[i] <- M_C.simu.e_rate[i-1] + dM_C
-  }
-  
-  C_L.eq_cover.e_rate[j] <- C_L.simu.e_rate[max(tset.e_rate)]
-  C_D.eq_cover.e_rate[j] <- C_D.simu.e_rate[max(tset.e_rate)]
-  M_S.eq_cover.e_rate[j] <- M_S.simu.e_rate[max(tset.e_rate)]
-  M_C.eq_cover.e_rate[j] <- M_C.simu.e_rate[max(tset.e_rate)]
-}
-
-
-# Plot of time series
-plot(e_set, C_L.eq_cover.e_rate, col = "black", lwd = 1, lty = 'solid', type = 'l', xlab = "Erosion rate", ylab = "Equilibrium coral cover", xlim = c(0, max(e_set)), ylim = c(0, 1))
 
 
 ```
