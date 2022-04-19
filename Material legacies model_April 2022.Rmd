@@ -1,0 +1,751 @@
+---
+title: "Material legacies can degrade resilience_model code"
+author: "Kai Kopecky"
+date: "4/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Parameter values, echo = FALSE}
+# Model parameter values
+g_C <- 0.1 # coral growth rate; range: 0.04 - 0.2; default value within range
+d_C <- 0.001 # coral mortality rate; range: 0.02 - 0.1
+gamma_C <- 0.001 # settlement of exogenously derived coral onto open space; range: 0.00006 - 0.01; default value within range
+g_M <- 0.6 # growth of macroalgae onto open space or dead coral; range: 0.05 - 0.4
+g_M_P_L <- 0.06 # growth of macroalgae over live coral; range: 0-0.9 of g_M; default value within range
+d_M <- 0.05 # death of macroalgae; no published range
+h_M_E <- 0.3 # ambient herbivory rate; range: 0.05 - 5; default value within range
+ref <- 0.5 # degree of refuge from herbivory for macroalgae that is provided by dead skeleton; no published range
+gamma_M <- 0.001 # settlement of macroalgae; default value within range 
+e <- 0.01 # erosion of dead coral; no published range
+
+# Disturbance parameters
+t_disturb <- 500
+disturb_set <- seq(from = 0, to = 1, by = .01) # Time vector for outer loop
+tset.disturb <- seq(from = 0, to = 2000) # Time vector for inner loop
+```
+
+
+Time series for structure-removing disturbance event in which all space-holders are reduced to 50% of their pre-disturbance cover. Starting conditions reflect a coral-dominated community state. 
+```{r Figure 4 code, echo = FALSE}
+
+# Create time vector, holding vectors for each state variable, and set initial conditions
+C_L.simu_rem <- NaN*tset.disturb; C_L.simu_rem[1] <- 0.89 # Equilibrium value
+C_D.simu_rem <- NaN*tset.disturb; C_D.simu_rem[1] <- 0.1 # Equilirbirum value
+M_E.simu_rem <- NaN*tset.disturb; M_E.simu_rem[1] <- 0
+M_P.simu_rem <- NaN*tset.disturb; M_P.simu_rem[1] <- 0
+
+# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
+
+for(i in 2:length(tset.disturb)){ # For every element after the first in the time vector...
+  
+  if(tset.disturb[i] !=t_disturb){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+  
+  dt <- tset.disturb[i] - tset.disturb[i-1] # calculate change in time  
+ 
+  # Proportional cover at previous time step  
+  C_L <- C_L.simu_rem[i-1]
+  C_D <- C_D.simu_rem[i-1]
+  M_E <- M_E.simu_rem[i-1]
+  M_P <- M_P.simu_rem[i-1]
+  
+  # Change in proportional cover for live coral (C_L), dead coral (C_D), exposed macroalgae (M_E), and protected macroalgae (M_P)
+  dC_L <- (dt)*(g_C*C_L*(1-C_L-C_D-M_E-M_P) + gamma_C*(1-C_L-C_D-M_E-M_P) - g_M_P_L*C_L*(M_E + M_P) - d_C*C_L) 
+  dC_D <- (dt)*(d_C*C_L + M_P*(h_M_E*(1-ref) + d_M) - g_M*C_D*(M_E + M_P) - gamma_M*C_D - e*C_D)
+  dM_E <- (dt)*(g_M*M_E*(1-C_L-C_D-M_E-M_P) + g_M*M_P*(1-C_L-C_D-M_E-M_P) + gamma_M*(1-C_L-C_D-M_E-M_P) - M_E*(h_M_E + d_M))
+  dM_P <- (dt)*(g_M*M_P*C_D + g_M*M_E*C_D + g_M_P_L*C_L*(M_E + M_P) + gamma_M*C_D - M_P*(h_M_E*(1-ref) + d_M + e))
+ 
+  # Proportional cover at new time step   
+  C_L.simu_rem[i] <- C_L.simu_rem[i-1] + dC_L
+  C_D.simu_rem[i] <- C_D.simu_rem[i-1] + dC_D
+  M_E.simu_rem[i] <- M_E.simu_rem[i-1] + dM_E
+  M_P.simu_rem[i] <- M_P.simu_rem[i-1] + dM_P
+  }
+  
+    else { # ... but if the time step does equal the time of disturbance...
+  
+  dt <- tset.disturb[i] - tset.disturb[i-1]
+
+  # reduce all space holders to 50% of their pre-disturbance levels
+  C_L <- C_L.simu_rem[i-1]*0.5
+  C_D <- C_D.simu_rem[i-1]*0.5
+  M_E <- M_E.simu_rem[i-1]*0.5
+  M_P <- M_P.simu_rem[i-1]*0.5
+  
+  dC_L <- (dt)*(g_C*C_L*(1-C_L-C_D-M_E-M_P) + gamma_C*(1-C_L-C_D-M_E-M_P) - g_M_P_L*C_L*(M_E + M_P) - d_C*C_L) 
+  dC_D <- (dt)*(d_C*C_L + M_P*(h_M_E*(1-ref) + d_M) - g_M*C_D*(M_E + M_P) - gamma_M*C_D - e*C_D)
+  dM_E <- (dt)*(g_M*M_E*(1-C_L-C_D-M_E-M_P) + g_M*M_P*(1-C_L-C_D-M_E-M_P) + gamma_M*(1-C_L-C_D-M_E-M_P) - M_E*(h_M_E + d_M))
+  dM_P <- (dt)*(g_M*M_P*C_D + g_M*M_E*C_D + g_M_P_L*C_L*(M_E + M_P) + gamma_M*C_D - M_P*(h_M_E*(1-ref) + d_M + e))
+  
+  C_L.simu_rem[i] <- C_L+ dC_L
+  C_D.simu_rem[i] <- C_D+ dC_D
+  M_E.simu_rem[i] <- M_E+ dM_E
+  M_P.simu_rem[i] <- M_P+ dM_P
+  }
+  
+}
+
+# Plot of time series
+plot(tset.disturb, C_L.simu_rem, col = kotare[2], lwd = 2, lty = 'solid', type = 'l', xlab = "Time (years)", ylab = "Proportional cover", xlim = c(0, max(tset.disturb)), ylim = c(0, 1), main = "Structure-removing")
+lines(tset.disturb, C_D.simu_rem, col = "black", lwd = 2, lty = 'solid')
+lines(tset.disturb, (M_E.simu_rem + M_P.simu_rem), col = kotare[3], lwd = 2, lty = 'solid') # Protected and exposed macroalgae combined to show cover of total macroalgae
+abline(v=500, lty = 'dashed') # time of disturbance
+
+```
+
+Time series for structure-removing disturbance event in which all space-holders are reduced to 50% of their pre-disturbance cover. Starting conditions reflect a coral-dominated community state. 
+```{r Structure-retaining disturbance single event coral state, echo = FALSE}
+
+# Create time vector, holding vectors for each state variable, and set initial conditions
+C_L.simu_ret <- NaN*tset.disturb; C_L.simu_ret[1] <- 0.89
+C_D.simu_ret <- NaN*tset.disturb; C_D.simu_ret[1] <- 0.1
+M_E.simu_ret <- NaN*tset.disturb; M_E.simu_ret[1] <- 0
+M_P.simu_ret <- NaN*tset.disturb; M_P.simu_ret[1] <- 0
+
+# For() loop with if/else statement to simulate trajectories of spatial occupancy by live coral and macroalgae before and after disturbance
+for(i in 2:length(tset.disturb)){ # For every element after the first in the time vector...
+  
+ if(tset_phys_dist[i] !=t_disturb){ # ...if the time point does not equal the time of disturbance, run the simulation as normal...
+
+# calculate change in time  
+  dt <- tset.disturb[i] - tset.disturb[i-1] 
+
+  # Proportional cover at previous time step  
+  C_L <- C_L.simu_ret[i-1] 
+  C_D <- C_D.simu_ret[i-1]
+  M_E <- M_E.simu_ret[i-1]
+  M_P <- M_P.simu_ret[i-1]
+ 
+# Change in proportional cover for live coral (C_L), dead coral (C_D), exposed macroalgae (M_E), and protected macroalgae (M_P)
+  dC_L <- (dt)*(g_C*C_L*(1-C_L-C_D-M_E-M_P) + gamma_C*(1-C_L-C_D-M_E-M_P) - g_M_P_L*C_L*(M_E + M_P) - d_C*C_L) 
+  dC_D <- (dt)*(d_C*C_L + M_P*(h_M_E*(1-ref) + d_M) - g_M*C_D*(M_E + M_P) - gamma_M*C_D - e*C_D)
+  dM_E <- (dt)*(g_M*M_E*(1-C_L-C_D-M_E-M_P) + g_M*M_P*(1-C_L-C_D-M_E-M_P) + gamma_M*(1-C_L-C_D-M_E-M_P) - M_E*(h_M_E + d_M))
+  dM_P <- (dt)*(g_M*M_P*C_D + g_M*M_E*C_D + g_M_P_L*C_L*(M_E + M_P) + gamma_M*C_D - M_P*(h_M_E*(1-ref) + d_M + e))
+
+# Proportional cover at new time step  
+  C_L.simu_ret[i] <- C_L.simu_ret[i-1] + dC_L
+  C_D.simu_ret[i] <- C_D.simu_ret[i-1] + dC_D
+  M_E.simu_ret[i] <- M_E.simu_ret[i-1] + dM_E
+  M_P.simu_ret[i] <- M_P.simu_ret[i-1] + dM_P
+  
+  }
+
+  # ... but if the time step does equal the time of disturbance...
+    else {
+  
+  dt <- tset.disturb[i] - tset.disturb[i-1]
+
+  C_L <- C_L.simu_ret[i-1]*0.5 # reduce live coral to 50% of its pre-disturbance level...
+  C_D <- C_D.simu_ret[i-1] + (C_L.simu_ret[i-1]-C_L) #... and transfer this directly to the dead coral class
+  M_E <- M_E.simu_ret[i-1]
+  M_P <- M_P.simu_ret[i-1]
+  
+  dC_L <- (dt)*(g_C*C_L*(1-C_L-C_D-M_E-M_P) + gamma_C*(1-C_L-C_D-M_E-M_P) - g_M_P_L*C_L*(M_E + M_P) - d_C*C_L) 
+  dC_D <- (dt)*(d_C*C_L + M_P*(h_M_E*ref + d_M) - g_M*C_D*(M_E + M_P) - gamma_M*C_D - e*C_D)
+  dM_E <- (dt)*(g_M*M_E*(1-C_L-C_D-M_E-M_P) + g_M*M_P*(1-C_L-C_D-M_E-M_P) + gamma_M*(1-C_L-C_D-M_E-M_P) - M_E*(h_M_E + d_M))
+  dM_P <- (dt)*(g_M*M_P*C_D + g_M*M_E*C_D + g_M_P_L*C_L*(M_E + M_P) + gamma_M*C_D - M_P*(h_M_E*ref + d_M + e))
+  
+  C_L.simu_ret[i] <- C_L + dC_L
+  C_D.simu_ret[i] <- C_D + dC_D
+  M_E.simu_ret[i] <- M_E + dM_E
+  M_P.simu_ret[i] <- M_P + dM_P
+  
+  }
+  
+}
+
+# Plot of time series for all space holders
+plot(tset.disturb, C_L.simu_ret, col = kotare[2], lwd = 2, lty = 'solid', type = 'l', xlab = "Time (years)", ylab = "Proportional cover", xlim = c(0, max(tset.disturb)), ylim = c(0, 1), main = "Structure-retaining")
+lines(tset.disturb, C_D.simu_ret, col = "black", lwd = 2, lty = 'solid')
+lines(tset.disturb, (M_E.simu_ret + M_P.simu_ret), col = kotare[3], lwd = 2, lty = 'solid') # Protected and exposed macroalgae combined to show cover of total macroalgae
+abline(v=500, lty = 'dashed') # time of disturbance
+```
+
+
+## Creating a funciton for the model
+
+Here, we create a function representing the model so that we don't have to paste all that code in each time.
+
+```{r}
+CoralFun <- function(tset,ic,t_disturb,dist.type,disturbance_severity,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M){
+  # create holding vectors for the inner loop
+	C_L <- NaN*tset; 	C_L[1] <- ic[1] # use the vector of initial conditions to populate initial densities
+	C_D <- NaN*tset; 	C_D[1] <- ic[2]
+	M_E <- NaN*tset;	M_E[1] <- ic[3]
+	M_P <- NaN*tset; 	M_P[1] <- ic[4]
+
+	# run ODE simulation
+	for(i in 2:length(tset)){ 
+	  
+  if(tset[i] !=t_disturb){ # if this is not a disturbance event
+
+  	# calculate change in proportional cover at each timestep
+    dt <- tset[i] - tset[i-1]
+    dC_L <- dt*(g_C*C_L[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + gamma_C*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) - g_M_P_L*C_L[i-1]*(M_E[i-1] + M_P[i-1]) - d_C*C_L[i-1]) 
+    dC_D <- dt*(d_C*C_L[i-1] + M_P[i-1]*(h_M_E*(1-ref) + d_M) - g_M*C_D[i-1]*(M_E[i-1] + M_P[i-1]) - gamma_M*C_D[i-1] - e*C_D[i-1])
+    dM_E <- dt*(g_M*M_E[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + g_M*M_P[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + gamma_M*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) - M_E[i-1]*(h_M_E + d_M))
+    dM_P <- dt*(g_M*M_P[i-1]*C_D[i-1] + g_M*M_E[i-1]*C_D[i-1] + g_M_P_L*C_L[i-1]*(M_E[i-1] + M_P[i-1]) + gamma_M*C_D[i-1] - M_P[i-1]*(h_M_E*(1-ref) + d_M + e)) 
+  	
+  	# calculate the population density at each timestep
+  	C_L[i] <- C_L[i-1] + dC_L
+  	C_D[i] <- C_D[i-1] + dC_D
+  	M_E[i] <- M_E[i-1] + dM_E
+  	M_P[i] <- M_P[i-1] + dM_P
+    }
+    
+     else { # If the disturbance event is taking place, then adjust the populations accordingly
+        if(dist.type == 'ret'){
+          C_L[i] <- C_L[i-1]*(1-disturbance_severity)
+          C_D[i] <- C_D[i-1] + C_L[i-1] - C_L[i]
+          M_E[i] <- M_E[i-1]
+          M_P[i] <- M_P[i-1]
+        } else if(dist.type == 'none'){
+          C_L[i] <- C_L[i-1]
+          C_D[i] <- C_D[i-1]
+          M_E[i] <- M_E[i-1]
+          M_P[i] <- M_P[i-1]
+          } else{
+          C_L[i] <- C_L[i-1]*(1-disturbance_severity)
+          C_D[i] <- C_D[i-1]*(1-disturbance_severity)
+          M_E[i] <- M_E[i-1]*(1-disturbance_severity)
+          M_P[i] <- M_P[i-1]*(1-disturbance_severity)
+        }
+     }
+	}
+	
+	Results <- list("CL" = C_L, "CD" = C_D, "MS" = M_E, "MC" = M_P) # concatenate results into a list
+	Results # report out that list
+}
+
+```
+
+
+First consideration: What's the starting point that you want to be disturbed from? Presumably, it's one of the stable equilibria (either macroalgal-dominated, or coral-dominated). So you can skip the time you're spending "ramping up" the simulation by just using the old equilibria as your initial condition and then having the perturbation occur right away.
+
+```{r}
+# Find high-coral conditions:
+Res <- CoralFun(tset,c(1,0,0,0),t_disturb,'none',disturbance_severity,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+
+plot(tset,Res$CL,las=1,xlab='Time',ylab='Prop. Cover',type='l',col='coral',lwd=2,ylim=c(0,1))
+lines(tset,Res$CD,col='black',lwd=2)
+lines(tset,Res$MS,col='green',lwd=2)
+lines(tset,Res$MC,col='darkgreen',lwd=2)
+legend(.7*max(tset),.8,legend=c('Live Coral','Dead Coral','Exp. Mac.','Prot. Mac.'),lwd=2,col=c('coral','black','green','darkgreen'))
+
+ic.cor <- c(Res$CL[length(tset)],Res$CD[length(tset)],Res$MS[length(tset)],Res$MC[length(tset)])
+
+
+# Find low-coral conditions:
+Res <- CoralFun(tset,c(0,0,.5,.5),t_disturb,'none',disturbance_severity,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+
+plot(tset,Res$CL,las=1,xlab='Time',ylab='Prop. Cover',type='l',col='coral',lwd=2,ylim=c(0,1))
+lines(tset,Res$CD,col='black',lwd=2)
+lines(tset,Res$MS,col='green',lwd=2)
+lines(tset,Res$MC,col='darkgreen',lwd=2)
+legend(.7*max(tset),.8,legend=c('Live Coral','Dead Coral','Exp. Mac.','Prot. Mac.'),lwd=2,col=c('coral','black','green','darkgreen'))
+
+ic.mac <- c(Res$CL[length(tset)],Res$CD[length(tset)],Res$MS[length(tset)],Res$MC[length(tset)])
+```
+
+
+
+Second consideration: Maybe we can get away with a shorter timeseries? Let's check out some timeseries to see how long it takes for a disturbance to "level out".
+
+```{r}
+
+t_disturb <- 1 # disturb immediately. (Note that we can't set this to time 0 because the initial conditions are what we put in there, and we start looping over t in the ODE solver from the 2nd step!)
+t.step <- 1 # step size of time function
+tset <- sort(unique(c(seq(from = 0, to = 6000, by = t.step),t_disturb))) # Time vector for ODE solutions. I'm using concatenate, uniqueness, and sorting to make sure that the "t-disturb" time is part of this vector. This would be robust to, for example, using the seq function with different "step sizes", etc.
+
+
+# Choose disturbance type
+dist.type <- "ret" # Structure-retaining disturbance
+dist.type <- "rem" # Structure-removing disturbance
+#dist.type <- "none" # No disturbance
+
+```
+
+As a slightly cleaner alternative, we could just perturb the initial conditions and not need to have the coral ODE function with disturbance cases at all!
+
+```{r}
+CoralFun.NoDisturb <- function(tset,ic,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M){
+  # create holding vectors for the inner loop
+	C_L <- NaN*tset; 	C_L[1] <- ic[1] # use the vector of initial conditions to populate initial densities
+	C_D <- NaN*tset; 	C_D[1] <- ic[2]
+	M_E <- NaN*tset;	M_E[1] <- ic[3]
+	M_P <- NaN*tset; 	M_P[1] <- ic[4]
+
+	# run ODE simulation
+	for(i in 2:length(tset)){ 
+	  
+  	# calculate change in proportional cover at each timestep
+    dt <- tset[i] - tset[i-1]
+    dC_L <- dt*(g_C*C_L[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + gamma_C*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) - g_M_P_L*C_L[i-1]*(M_E[i-1] + M_P[i-1]) - d_C*C_L[i-1]) 
+    dC_D <- dt*(d_C*C_L[i-1] + M_P[i-1]*(h_M_E*(1-ref) + d_M) - g_M*C_D[i-1]*(M_E[i-1] + M_P[i-1]) - gamma_M*C_D[i-1] - e*C_D[i-1])
+    dM_E <- dt*(g_M*M_E[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + g_M*M_P[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + gamma_M*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) - M_E[i-1]*(h_M_E + d_M))
+    dM_P <- dt*(g_M*M_P[i-1]*C_D[i-1] + g_M*M_E[i-1]*C_D[i-1] + g_M_P_L*C_L[i-1]*(M_E[i-1] + M_P[i-1]) + gamma_M*C_D[i-1] - M_P[i-1]*(h_M_E*(1-ref) + d_M + e)) ##REPLACED
+  	
+  	# calculate the population density at each timestep
+  	C_L[i] <- C_L[i-1] + dC_L
+  	C_D[i] <- C_D[i-1] + dC_D
+  	M_E[i] <- M_E[i-1] + dM_E
+  	M_P[i] <- M_P[i-1] + dM_P
+	}
+	
+	Results <- list("CL" = C_L, "CD" = C_D, "ME" = M_E, "MP" = M_P) # concatenate results into a list
+	Results # report out that list
+}
+
+```
+
+## Computing disturbance thresholds
+
+This code implements a binary search algorithm to find the disturbance threshold at which a system tips between equilibrium states.
+
+```{r}
+
+DistSevThresh.adapt <- function(ic.use,dist.type,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M,iters){
+  
+  ## Step 1: Check full range of disturbance values (lower bound = 0, upper bound = 1, intermediate = 0.5)
+  ## Step 1A: Check lower bound (disturbance = 0)
+  dist_low <- 0
+  # Adjust initial conditions based on the disturbance severity and type
+  if(dist.type=='ret'){ic.dist <- c(ic.use[1]*(1-dist_low),ic.use[2]+ic.use[1]*dist_low,ic.use[3],ic.use[4])}
+  if(dist.type=='rem'){ic.dist <- ic.use*(1-dist_low)}
+  # Run the simulation
+  Res <- CoralFun.NoDisturb(tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  # Save the results
+  Cstar_low <- Res$CL[length(tset)]
+  
+  ## Step 1B: Check upper bound (disturbance = 1)
+  dist_high <- 1
+  # Adjust initial conditions based on the disturbance severity and type
+  if(dist.type=='ret'){ic.dist <- c(ic.use[1]*(1-dist_high),ic.use[2]+ic.use[1]*dist_high,ic.use[3],ic.use[4])}
+  if(dist.type=='rem'){ic.dist <- ic.use*(1-dist_high)}
+  # Run the simulation
+  Res <- CoralFun.NoDisturb(tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  # Save the results
+  Cstar_high <- Res$CL[length(tset)]
+  
+  ## Step 1C: CHECKPOINT: Confirm that the disturbance extremes span a change in states. If they don't, return NaN.
+  if(abs(Cstar_low - Cstar_high) < 0.001){ # If the two disturbances produce no change
+    dist_test <- NaN
+  } else{
+    
+  ## Step 1D: Check intermediate (disturbance = 0.5)
+  dist_test <- (dist_low+dist_high)/2 # average of the two
+  # Adjust initial conditions based on the disturbance severity and type
+  if(dist.type=='ret'){ic.dist <- c(ic.use[1]*(1-dist_test),ic.use[2]+ic.use[1]*dist_test,ic.use[3],ic.use[4])}
+  if(dist.type=='rem'){ic.dist <- ic.use*(1-dist_test)}
+  # Run the simulation
+  Res <- CoralFun.NoDisturb(tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  # Save the results
+  Cstar_test <- Res$CL[length(tset)]
+  
+  
+  ## Step 2: Figure out which two disturbance levels flank the tipping point, and update the high and low bounds
+  if(abs(Cstar_test - Cstar_low) < 0.001){ # If the test coral biomass is pretty darn close to the lower bound, then this can be the new lower bound
+    dist_low <- dist_test # save the new lower bound
+    Cstar_low <- Cstar_test # and the new test Cstar value
+  } else{ # Otherwise, this should be the new upper bound
+    dist_high <- dist_test # save the new upper bound
+    Cstar_high <- Cstar_test # save the new Cstar value
+  }
+  
+  
+  ## Step 3: Iterate this algorithm, narrowing down on the "correct" disturbance threshold.
+  for(j in 1:iters){ # for each iteration 
+    ## Step 3A: Compute a new test disturbance level, and its corresponding coral cover
+    dist_test <- (dist_low+dist_high)/2 # average of the two
+    # Adjust initial conditions based on the disturbance severity and type
+    if(dist.type=='ret'){ic.dist <- c(ic.use[1]*(1-dist_test),ic.use[2]+ic.use[1]*dist_test,ic.use[3],ic.use[4])}
+    if(dist.type=='rem'){ic.dist <- ic.use*(1-dist_test)}
+    # Run the simulation
+    Res <- CoralFun.NoDisturb(tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+    # Save the results
+    Cstar_test <- Res$CL[length(tset)]
+    
+    ## Step 3B: Update previous estimates
+    if(abs(Cstar_test - Cstar_low) < 0.001){ # If the test coral biomass is pretty darn close to the lower bound, then this can be the new lower bound
+      dist_low <- dist_test # save the new lower bound
+      Cstar_low <- Cstar_test # and the new test Cstar value
+    } else{ # Otherwise, this should be the new upper bound
+      dist_high <- dist_test # save the new upper bound
+      Cstar_high <- Cstar_test # save the new Cstar value
+    }}
+  }
+  
+  
+  # Report out the results
+  Results2 <- list("dist.thresh" = dist_test)
+  
+  Results2
+  
+}
+
+```
+
+Let's take this function out for a spin!
+
+```{r}
+
+  Res <- CoralFun.NoDisturb(tset,c(1,0,0,0),g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  ic.cor <- c(Res$CL[length(tset)],Res$CD[length(tset)],Res$ME[length(tset)],Res$MP[length(tset)])
+ 
+ic.use <- ic.cor
+dist.type <- "ret"
+
+iters.set <- seq(1,25,by=1)
+thresh.set <- NaN*iters.set
+
+for(k in 1:length(iters.set)){
+  iters <- iters.set[k]
+  Res2 <- DistSevThresh.adapt(ic.use,dist.type,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M,iters)
+  thresh.set[k] <- Res2$dist.thresh}
+
+
+
+
+```
+
+```{r}
+plot(iters.set,thresh.set,las=1,lwd=2,type='l',ylim=c(0,max(thresh.set)),xlab='Algorithm Detail (# of iterations)', ylab='Disturbance Threshold')
+
+```
+
+Woohoo! This is wicked fast, and very efficient. So let's use it to re-make the other figures.
+
+```{r}
+
+# Step 1: Choose the parameter to vary, and range over which to vary it
+ref_set <- seq(from = 0, to = 1, by = 0.01)
+#ref_set2 <- seq(from = 0, to = 1, by = 0.01)
+
+# Step 1a: Create associated holding variables
+CtoM.ret.set<- NaN*ref_set
+CtoM.rem.set <- NaN*ref_set
+MtoC.ret.set <- NaN*ref_set
+MtoC.rem.set <- NaN*ref_set
+C.eq.set <- NaN*ref_set
+M.eq.set <- NaN*ref_set
+
+# Step 1b: Some other setup
+iters <- 10 # number of iterations to "narrow down" on the disturbance threshold
+tset <- seq(from = 0, to = 3000, by = t.step) 
+
+# Loop through each of the parameter values
+for(ctr2 in 1:length(ref_set)){
+  
+  ref <- ref_set[ctr2]
+  
+  # Step 2: Find new equilibria (new initial conditions for coral and macroalgal dominated states)
+  Res <- CoralFun.NoDisturb(tset,c(1,0,0,0),g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  ic.cor <- c(Res$CL[length(tset)],Res$CD[length(tset)],Res$ME[length(tset)],Res$MP[length(tset)])
+  C.eq.set[ctr2] <- Res$CL[length(tset)] # Record the equilibrium coral abundance in the coral-dominated state
+  
+  # Find low-coral conditions:
+  Res <- CoralFun.NoDisturb(tset,c(0,0,.5,.5),g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  ic.mac <- c(Res$CL[length(tset)],Res$CD[length(tset)],Res$ME[length(tset)],Res$MP[length(tset)])
+  M.eq.set[ctr2] <- Res$CL[length(tset)] # Record the equilibrium coral abundance in the macroalgal-dominated state
+  
+  # Step 3: Find the tipping points
+  if(abs(C.eq.set[ctr2] -M.eq.set[ctr2]) > 0.001){ # Only bother finding tipping points if there are two stable equilibria (e.g., the coral cover in coral and macroalgal dominated systems is different)
+    
+    # Step 3A: Find the tipping point from coral to macroalgal dominance with biological disturbance
+    ic.use <- ic.cor # start with a coral dominated system
+    dist.type <- "ret" # use a biological disturbance
+    Res2 <- DistSevThresh.adapt(ic.use,dist.type,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M,iters)
+    CtoM.ret.set[ctr2] <- Res2$dist.thresh # Record the result
+    
+    # Step 3B: Find the tipping point from coral to macroalgal dominance with structure-removing disturbance
+    ic.use <- ic.cor # start with a coral dominated system
+    dist.type <- "rem" # use a biological disturbance
+    Res2 <- DistSevThresh.adapt(ic.use,dist.type,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M,iters)
+    CtoM.rem.set[ctr2] <- Res2$dist.thresh # Record the result
+    
+    # Step 3C: Find the tipping point from M to C dominance with biological disturbance
+    ic.use <- ic.mac # start with a coral dominated system
+    dist.type <- "ret" # use a biological disturbance
+    Res2 <- DistSevThresh.adapt(ic.use,dist.type,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M,iters)
+    MtoC.ret.set[ctr2] <- Res2$dist.thresh # Record the result
+    
+    # Step 3D: Find the tipping point from M to C dominance with structure-removing disturbance
+    ic.use <- ic.mac # start with a coral dominated system
+    dist.type <- "rem" # use a biological disturbance
+    Res2 <- DistSevThresh.adapt(ic.use,dist.type,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M,iters)
+    MtoC.rem.set[ctr2] <- Res2$dist.thresh # Record the result
+  }
+  
+}
+
+```
+
+Find tipping points in disturbance severity for each transition type within the region of bistability:
+```{r}
+
+# Line for tipping points going from coral to macroalgae for structure-retaining disturbances
+for( i in 1:length(CtoM.ret.set)){
+  if(i < 50){
+    if (is.na(CtoM.ret.set)[i]){
+      CtoM.ret.set[i] <- 1
+    } } else {
+      if(is.na(CtoM.ret.set)[i]){
+      CtoM.ret.set[i] <- 0
+    
+    }
+  }
+}
+
+# # Line for tipping points going from macroalgae to coral for structure-retaining disturbances; this transition type does not occur as a result of disturbance and therefore is commented out
+# for( i in 1:length(MtoC.ret.set)){
+#   if(i < 50){
+#     if (is.na(MtoC.ret.set)[i]){
+#       MtoC.ret.set[i] <- 0
+#     } } else {
+#       if(is.na(MtoC.ret.set)[i]){
+#       MtoC.ret.set[i] <- 1
+#     
+#     }
+#   }
+# }
+
+# Line for tipping points going from coral to macroalgae for structure-removing disturbances
+for( i in 1:length(CtoM.rem.set)){
+  if(i < 50){
+    if (is.na(CtoM.rem.set)[i]){
+      CtoM.rem.set[i] <- 1
+    } } else {
+      if(is.na(CtoM.rem.set)[i]){
+      CtoM.rem.set[i] <- 1
+    
+    }
+  }
+}
+
+# Line for tipping points going from Macroalgae to coral for structure-removing disturbances
+for( i in 1:length(MtoC.rem.set)){
+  if(i < 50){
+    if (is.na(MtoC.rem.set)[i]){
+      MtoC.rem.set[i] <- 0
+    } } else {
+      if(is.na(MtoC.rem.set)[i]){
+      MtoC.rem.set[i] <- 1
+    
+    }
+  }
+}
+```
+
+
+Creates a new function that returns time to equilibrium:
+
+```{r}
+
+ReturnTime <- function(ic.cor,ic.mac,tset,ic,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M){
+  # Create holding vectors for the inner loop
+	C_L <- NaN*tset; 	C_L[1] <- ic[1] # use the vector of initial conditions to populate initial densities
+	C_D <- NaN*tset; 	C_D[1] <- ic[2]
+	M_E <- NaN*tset;	M_E[1] <- ic[3]
+	M_P <- NaN*tset; 	M_P[1] <- ic[4]
+
+  # Run simulation
+  for(i in 2:length(tset)){ 
+    dt <- tset[i] - tset[i-1]
+    C_L[i] <- C_L[i-1] + dt*(g_C*C_L[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + gamma_C*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) - g_M_P_L*C_L[i-1]*(M_E[i-1] + M_P[i-1]) - d_C*C_L[i-1]) 
+    C_D[i] <- C_D[i-1] + dt*(d_C*C_L[i-1] + M_P[i-1]*(h_M_E*(1-ref) + d_M) - g_M*C_D[i-1]*(M_E[i-1] + M_P[i-1]) - gamma_M*C_D[i-1] - e*C_D[i-1])
+    M_E[i] <- M_E[i-1] + dt*(g_M*M_E[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + g_M*M_P[i-1]*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) + gamma_M*(1-C_L[i-1]-C_D[i-1]-M_E[i-1]-M_P[i-1]) - M_E[i-1]*(h_M_E + d_M))
+    M_P[i] <- M_P[i-1] + dt*(g_M*M_P[i-1]*C_D[i-1] + g_M*M_E[i-1]*C_D[i-1] + g_M_P_L*C_L[i-1]*(M_E[i-1] + M_P[i-1]) + gamma_M*C_D[i-1] - M_P[i-1]*(h_M_E*(1-ref) + d_M + e))
+	}
+
+  # Determine which equilibrium you go to
+  if (abs(C_L[length(tset)]-ic.cor[1]) < 0.001) {EqCorUse <- ic.cor[1]; EqMacUse <- ic.cor[3]; EqCDUse <- ic.cor[2]; EqMCUse <- ic.cor[4]; Eq = 1} else {EqCorUse <- ic.mac[1]; EqMacUse <- ic.mac[3]; EqCDUse <- ic.mac[2]; EqMCUse <- ic.mac[4]; Eq = 2}
+	if(C_L[length(tset)] < .5){Eq = 2} # Modification: If coral abundance is below 0.5, then assume it's macroalgal dominated. CAUTION!!! Check this carefully because if you choose different parameters, this threshold might be different.
+
+  # Figure out how long it took to get there
+  RetTime <- tset[which(tset*(abs(C_L-EqCorUse) + abs(M_E-EqMacUse) + abs(C_D-EqCDUse) + abs(M_P-EqMCUse) < 0.004) != 0)[1]] # Which is the first timestep that you're near the equilibrium?
+  
+  Results <- list("RetTime" = RetTime,"CL" = C_L, "CD" = C_D, "MS" = M_E, "MC" = M_P,"Eq" = Eq)
+  Results
+}
+
+
+```
+
+Now we have to loop over all the parameter values:
+
+```{r}
+# Step 1: Choose the parameter to vary, and range over which to vary it
+ref_set <- seq(from = 0, to = 1, by = 0.01)
+
+# Step 2: Choose the disturbance distance to loop over
+dist.prop.set <- seq(from = 0, to = 1, by = 0.01) # Vector of disturbance intensities to test
+
+# Step 3: Create associated holding variables
+C.rem.eq.set <- matrix(rep(NaN,length(ref_set)*length(dist.prop.set)),nrow=length(ref_set),ncol=length(dist.prop.set)) # equilibrium for structure-removing disturbance starting in a coral-dominated state
+C.rem.time.set <- C.rem.eq.set # equilibration time for a structure-removing disturbance starting in a coral-dominated state
+M.ret.eq.set <- C.rem.eq.set
+M.ret.time.set <- C.rem.eq.set
+C.ret.eq.set <- C.rem.eq.set
+C.ret.time.set <- C.rem.eq.set
+M.rem.eq.set <- C.rem.eq.set
+M.rem.time.set <- C.rem.eq.set
+
+C.eq.set <- NaN*ref_set
+M.eq.set <- NaN*ref_set
+
+# Step 4: Some other setup
+tset <- seq(from = 0, to = 4000, by =1) #was to = 3000
+
+# Loop through each of the parameter values
+for(varctr in 1:length(ref_set)){
+  
+  ref <- ref_set[varctr]
+  
+  # Step 5: Find new equilibria (new initial conditions for coral and macroalgal dominated states)
+  Res <- CoralFun.NoDisturb(tset,c(1,0,0,0),g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  ic.cor <- c(Res$CL[length(tset)],Res$CD[length(tset)],Res$ME[length(tset)],Res$MP[length(tset)])
+  C.eq.set[varctr] <- Res$CL[length(tset)] # Record the equilibrium coral abundance in the coral-dominated state
+  
+  # Find low-coral conditions:
+  Res <- CoralFun.NoDisturb(tset,c(0,0,.5,.5),g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+  ic.mac <- c(Res$CL[length(tset)],Res$CD[length(tset)],Res$ME[length(tset)],Res$MP[length(tset)])
+  M.eq.set[varctr] <- Res$CL[length(tset)] # Record the equilibrium coral abundance in the macroalgal-dominated state
+  
+  # Step 6: Find the return times & which equilibrium you return to
+  if(abs(C.eq.set[varctr] -M.eq.set[varctr]) > 0.001){ # Only bother finding tipping points if there are two stable equilibria (e.g., the coral cover in coral and macroalgal dominated systems is different)
+    
+    for(distctr in 1:length(dist.prop.set)){
+    dist.use <- dist.prop.set[distctr]
+    # Step 6A: Find the equilibration time from coral dominance with biological disturbance
+    ic.dist <- c(ic.cor[1]*(1-dist.use),ic.cor[2]+ic.cor[1]*dist.use,ic.cor[3],ic.cor[4]) # start with a coral dominated system
+    Res2 <- ReturnTime(ic.cor,ic.mac,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+    C.ret.eq.set[varctr,distctr] <- Res2$Eq # Record the result
+    C.ret.time.set[varctr,distctr] <- Res2$RetTime # Record the result
+    
+    # Step 6B: Find the equilibration time from coral dominance with structure-removing disturbance
+    ic.dist <- ic.cor*(1-dist.use)
+    Res2 <- ReturnTime(ic.cor,ic.mac,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+    C.rem.eq.set[varctr,distctr] <- Res2$Eq # Record the result
+    C.rem.time.set[varctr,distctr] <- Res2$RetTime # Record the result
+    
+    # Step 6C: Find the equilibration time from M dominance with biological disturbance
+    ic.dist <- c(ic.mac[1]*(1-dist.use),ic.mac[2]+ic.mac[1]*dist.use,ic.mac[3],ic.mac[4]) # start with a macroalgal dominated system
+    Res2 <- ReturnTime(ic.cor,ic.mac,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+    M.ret.eq.set[varctr,distctr] <- Res2$Eq # Record the result
+    M.ret.time.set[varctr,distctr] <- Res2$RetTime # Record the result
+    
+    # Step 6D: Find the equilibration time from M dominance with structure-removing disturbance
+    ic.dist <- ic.mac*(1-dist.use) # start with a macroalgal-dominated system
+    Res2 <- ReturnTime(ic.cor,ic.mac,tset,ic.dist,g_C,gamma_C,g_M_P_L,d_C,h_M_E,ref,d_M,g_M,e,gamma_M)
+    M.rem.eq.set[varctr,distctr] <- Res2$Eq # Record the result
+    M.rem.time.set[varctr,distctr] <- Res2$RetTime # Record the result
+  }}
+  
+}
+```
+
+
+
+#### Code for Figure 5
+
+The following code chunks create plots displaying the equilibrium state of the system AFTER disturbance as a function of algal protection and the intensity of disturbance. We ran simulations both for coral-dominated and macroalgae dominated initial conditions, and for both structure removing and structure-retaining disturbances. 
+
+```{r}
+require(fields) # has image.plot function
+```
+
+
+```{r, fig.height=5.8, fig.width=5}
+# Color palette Kotare from the New Zealand Birds color package 
+kotare <- c("#214d65", "#287DAB", "#E5BF86", "#B09771", "#624B27", "#CACFD0")
+kot <- colorRampPalette(colors = c(kotare[3],'white',kotare[2]))
+rwb <- colorRampPalette(colors = c("red", "white", "blue"))
+
+rwb <- kot
+
+```
+
+
+```{r, fig.height=4,fig.width=5, warning=FALSE}
+
+par(mar=c(4,3.8,1,5.5),mfrow=c(2,2))
+
+# Top left -- coral initial state w/ structure-removing disturbance
+C.rem.time.set.toC <- NaN*C.rem.time.set 
+C.rem.time.set.toM <- NaN*C.rem.time.set 
+for(i in 1:dim(C.rem.eq.set)[1]){
+  for(j in 1:dim(C.rem.eq.set)[2]){
+    if(!is.nan(C.rem.eq.set[i,j])){
+    if(C.rem.eq.set[i,j] == 1){ C.rem.time.set.toC[i,j] <- C.rem.time.set[i,j] } # If it's a coral equilibrium, save it to the "to coral" file
+    if(C.rem.eq.set[i,j] == 2){ C.rem.time.set.toM[i,j] <- C.rem.time.set[i,j] } # If it's a macroalgae equilibrium, save it to the "to macroalgae" file
+  }}
+}
+
+macroalgae.col <- colorRampPalette(colors = c(kotare[3],kotare[3],'white','white'))
+coral.col <- colorRampPalette(colors = c(kotare[2],kotare[2],'white','white'))
+
+image.plot(x = ref_set, y = dist.prop.set, z = C.rem.time.set.toC ,las=1,col=coral.col(100),xlab= "Algal Protection, p",ylab="Disturbance Intensity",xlim=c(0.38,0.72), ylim=c(0,1), zlim=zlimits, main = 'Structure-removing, initial state = coral')
+image.plot(x = ref_set, y = dist.prop.set, z = C.rem.time.set.toM ,las=1,col=macroalgae.col(100),add=T,zlim=zlimits,xlim=c(0.38,0.72), ylim=c(0,1))
+CtoM.rem.set2 <- CtoM.rem.set
+CtoM.rem.set2[CtoM.rem.set2==0] <- 1
+lines(ref_set, CtoM.rem.set2, lwd=2, col = "black")
+
+# Top right -- coral initial state w/ structure retaining disturbance
+C.ret.time.set.toC <- NaN*C.ret.time.set 
+C.ret.time.set.toM <- NaN*C.ret.time.set 
+for(i in 1:dim(C.ret.eq.set)[1]){
+  for(j in 1:dim(C.ret.eq.set)[2]){
+    if(!is.nan(C.ret.eq.set[i,j])){
+    if(C.ret.eq.set[i,j] == 1){ C.ret.time.set.toC[i,j] <- C.ret.time.set[i,j] } # If it's a coral equilibrium, save it to the "to coral" file
+    if(C.ret.eq.set[i,j] == 2){ C.ret.time.set.toM[i,j] <- C.ret.time.set[i,j] } # If it's a macroalgae equilibrium, save it to the "to macroalgae" file
+  }}
+}
+
+macroalgae.col <- colorRampPalette(colors = c(kotare[3],kotare[3],'white','white'))
+coral.col <- colorRampPalette(colors = c(kotare[2],kotare[2],'white','white'))
+
+zlimits <- c(min(C.ret.time.set,na.rm=T),max(C.ret.time.set,na.rm=T))
+
+image.plot(x = ref_set, y = dist.prop.set, z = C.ret.time.set.toC ,las=1,col=coral.col(100),xlab='Algal protection, p',ylab='Disturbance Intensity',xlim=c(0.38,0.72), ylim=c(0,1), zlim=zlimits, main = 'Structure-retaining, initial state = coral')
+image.plot(x = ref_set, y = dist.prop.set, z = C.ret.time.set.toM ,las=1,col=macroalgae.col(100),add=T,zlim=zlimits,xlim=c(0.38,0.72),ylim=c(0,1))
+lines(ref_set, CtoM.ret.set, lwd=2, col = 'black')
+
+# Bottom left -- macroalgal initial state w/ structure removing disturbance
+M.rem.time.set.toC <- NaN*M.rem.time.set 
+M.rem.time.set.toM <- NaN*M.rem.time.set 
+for(i in 1:dim(M.rem.eq.set)[1]){
+  for(j in 1:dim(M.rem.eq.set)[2]){
+    if(!is.nan(M.rem.eq.set[i,j])){
+    if(M.rem.eq.set[i,j] == 1){ M.rem.time.set.toC[i,j] <- M.rem.time.set[i,j] } # If it's a coral equilibrium, save it to the "to coral" file
+    if(M.rem.eq.set[i,j] == 2){ M.rem.time.set.toM[i,j] <- M.rem.time.set[i,j] } # If it's a macroalgae equilibrium, save it to the "to macroalgae" file
+  }}
+}
+
+macroalgae.col <- colorRampPalette(colors = c(kotare[3],kotare[3],'white','white'))
+coral.col <- colorRampPalette(colors = c(kotare[2],kotare[2],'white','white'))
+
+image.plot(x = ref_set, y = dist.prop.set, z = M.rem.time.set.toC ,las=1,col=coral.col(100),xlab='Algal Protection, p',ylab='Disturbance Intensity',xlim=c(0.38,0.72), ylim=c(0,1), zlim=zlimits, main = 'Structure-removing, initial state = macroalgae')
+image.plot(x = ref_set, y = dist.prop.set, z = M.rem.time.set.toM ,las=1,col=macroalgae.col(100),add=T,zlim=zlimits,xlim=c(0.38,0.72),ylim=c(0,100))
+lines(ref_set, MtoC.rem.set, lwd=2, col = 'black')
+
+# Bottom right -- macroalgal initial state w/ structure-retaining disturbance
+M.ret.time.set.toC <- NaN*M.ret.time.set 
+M.ret.time.set.toM <- NaN*M.ret.time.set 
+for(i in 1:dim(M.ret.eq.set)[1]){
+  for(j in 1:dim(M.ret.eq.set)[2]){
+    if(!is.nan(M.ret.eq.set[i,j])){
+    if(M.ret.eq.set[i,j] == 1){ M.ret.time.set.toC[i,j] <- M.ret.time.set[i,j] } # If it's a coral equilibrium, save it to the "to coral" file
+    if(M.ret.eq.set[i,j] == 2){ M.ret.time.set.toM[i,j] <- M.ret.time.set[i,j] } # If it's a macroalgae equilibrium, save it to the "to macroalgae" file
+  }}
+}
+
+macroalgae.col <- colorRampPalette(colors = c(kotare[3],kotare[3],'white','white'))
+coral.col <- colorRampPalette(colors = c(kotare[2],kotare[2],'white','white'))
+
+image.plot(x = ref_set, y = dist.prop.set, z = M.ret.time.set.toC ,las=1,col=coral.col(100),xlab='Algal Protection, p',ylab='Disturbance Intensity',xlim=c(0.38,0.72), ylim=c(0,1), zlim=zlimits, main = 'Structure-retaining, initial state = macroalgae')
+image.plot(x = ref_set, y = dist.prop.set, z = M.ret.time.set.toM ,las=1,col=macroalgae.col(100),add=T,zlim=zlimits,xlim=c(0.38,0.72),ylim=c(0,1))
+
+```
