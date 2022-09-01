@@ -1,0 +1,44 @@
+---
+title: "Dead coral cover"
+author: "Kai Kopecky"
+date: "8/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+
+dead_coral_cover <- read_csv("MCR_LTER_CoralStruct_Coral_Colony_Desc_2006-2011_20120530.csv") %>% 
+  clean_names()
+
+View(dead_coral_cover)
+```
+
+```{r}
+
+dead_coral_cover_clean <- dead_coral_cover %>% 
+  filter(year == "2006",
+         alive_or_dead == "Dead") %>% 
+  mutate(perc_cover = (area_cm2/2500)*100)
+
+View(dead_coral_cover_clean)
+  
+dead_coral_summary <- dead_coral_cover_clean %>%   
+  group_by(site, year) %>% 
+  summarize(
+    mean_dead_coral = round(mean(perc_cover), 2),
+    standard_deviation = round(sd(perc_cover), 2)
+  )
+
+mean(dead_coral_summary$mean_dead_coral)
+sd(dead_coral_summary$mean_dead_coral)
+
+View(dead_coral_summary)
+```
+
+
